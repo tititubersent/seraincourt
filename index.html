@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visite 3D Seraincourt</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        #splat-container { width: 100vw; height: 100vh; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="splat-container"></div>
+    <script type="module">
+        import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
+        
+        const viewer = new GaussianSplats3D.Viewer({
+            'rootElement': document.getElementById('splat-container'),
+            'cameraUp': [0, 1, 0],
+            'initialCameraPosition': [0, 20, 50],
+            'initialCameraLookAt': [0, 0, 0]
+        });
+
+        // Utilisation du lien LFS direct pour contourner les blocages
+        viewer.addSplatScene('https://media.githubusercontent.com/media/tititubersent/seraincourt/main/Model.splat', {
+            'progressiveLoad': true
+        })
+        .then(() => {
+            viewer.start();
+        });
+    </script>
+</body>
+</html>
