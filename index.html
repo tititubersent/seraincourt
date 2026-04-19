@@ -7,57 +7,62 @@
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
-        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; z-index: 10; border: 1px solid #555; }
+        #loader { 
+            position: absolute; top: 20px; left: 20px; 
+            background: rgba(0,0,0,0.85); padding: 20px; 
+            border-radius: 10px; z-index: 100; 
+            border: 1px solid #444; font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <div id="loader">Initialisation du village...</div>
+    <div id="loader">Connexion au serveur...</div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        // On passe à la version 1.3.0 (beaucoup plus stable)
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.3.0/dist/index.js";
+        // Importation du moteur 3D (version ultra-stable)
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/+esm";
 
         const canvas = document.getElementById("canvas");
         const loader = document.getElementById("loader");
-        const renderer = new SPLAT.WebGLRenderer(canvas);
-        const scene = new SPLAT.Scene();
-        const camera = new SPLAT.Camera();
-        const controls = new SPLAT.OrbitControls(camera, canvas);
 
         async function main() {
-            const url = "./model.splat";
-            
             try {
-                loader.innerHTML = "Téléchargement (59 Mo)...";
+                const renderer = new SPLAT.WebGLRenderer(canvas);
+                const scene = new SPLAT.Scene();
+                const camera = new SPLAT.Camera();
+                const controls = new SPLAT.OrbitControls(camera, canvas);
 
-                // Le nouveau chargeur auto-détecte le format (Splat ou PLY)
-                await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
+                camera.position.z = 7; // Recule un peu la caméra au début
+                loader.innerHTML = "Téléchargement du village (59 Mo)...";
+
+                // Chargement du fichier .splat
+                await SPLAT.Loader.LoadAsync("./model.splat", scene, (progress) => {
                     loader.innerHTML = "Chargement : " + (progress * 100).toFixed(0) + "%";
                 });
-                
-                loader.innerHTML = "Finalisation de l'affichage...";
-                // On attend une demi-seconde pour laisser la carte graphique respirer
-                await new Promise(r => setTimeout(r, 500));
-                
-                loader.style.display = "none";
-            } catch (e) {
-                console.error(e);
-                loader.innerHTML = "❌ ERREUR DE LECTURE<br><br>Le fichier est là mais mal lu.<br>Essaye de le renommer en <b>model.ply</b> sur GitHub et dans le code si ça persiste.";
-            }
 
-            function frame() {
-                controls.update();
-                renderer.render(scene, camera);
+                loader.style.display = "none";
+
+                function frame() {
+                    controls.update();
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                }
                 requestAnimationFrame(frame);
+
+            } catch (err) {
+                console.error(err);
+                loader.innerHTML = "❌ Erreur de chargement.<br>Vérifie que le fichier 'model.splat' est bien sur ton GitHub.";
             }
-            requestAnimationFrame(frame);
         }
 
         main();
 
+        // Gestion du redimensionnement de la fenêtre
         window.addEventListener("resize", () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            // Le renderer est défini dans main, on ajuste la taille si besoin
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
     </script>
 </body>
