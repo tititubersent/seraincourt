@@ -2,24 +2,16 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Splat Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splat Viewer - Seraincourt</title>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        canvas { width: 100vw; height: 100vh; display: block; }
     </style>
 </head>
 <body>
-
-<canvas id="canvas"></canvas>
-
-<script type="module" src="./viewer.js"></script>
-
+    <canvas id="canvas"></canvas>
+    <!-- On appelle le fichier index.js ici -->
+    <script type="module" src="index.js"></script>
 </body>
 </html>
