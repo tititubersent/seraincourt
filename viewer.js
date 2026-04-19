@@ -15,11 +15,14 @@ window.addEventListener("DOMContentLoaded", async () => {
         const splat = await SPLAT.Loader.LoadAsync("./model.splat");
         scene.addObject(splat);
         console.log("✅ modèle chargé");
+
+        // 🔥 AUTO FRAME (clé du problème)
+        camera.lookAt(splat.position);
+        camera.position.set(0, 0, 0.5);
+
     } catch (e) {
         console.error("❌ erreur chargement model.splat :", e);
     }
-
-    camera.position.set(0, 0, 3);
 
     function frame() {
         controls.update();
