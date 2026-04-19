@@ -10,54 +10,19 @@
       overflow: hidden;
       background: black;
     }
-  </style>
-
-  <!-- ✅ FIX three.js -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.157.0/build/three.module.js"
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
     }
-  }
-  </script>
-
+  </style>
 </head>
 
 <body>
 
-<script type="module">
-import * as SPLAT from './viewer.js';
+<canvas id="canvas"></canvas>
 
-// ✅ scène
-const scene = new SPLAT.Scene();
-const camera = new SPLAT.Camera();
-const renderer = new SPLAT.WebGLRenderer();
-
-document.body.appendChild(renderer.domElement);
-
-// ✅ taille écran
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-// ✅ charger le modèle
-const splat = await SPLAT.Loader.load('./model.splat');
-scene.add(splat);
-
-// ✅ caméra
-camera.position.set(0, 0, 3);
-
-// ✅ resize auto
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// ✅ animation
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
-
-animate();
-</script>
+<script type="module" src="viewer.js"></script>
 
 </body>
 </html>
