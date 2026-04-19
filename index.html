@@ -9,19 +9,18 @@
         canvas { width: 100vw; height: 100vh; display: block; }
         #loader { 
             position: absolute; top: 20px; left: 20px; 
-            background: rgba(0,0,0,0.85); padding: 20px; 
-            border-radius: 10px; z-index: 100; 
-            border: 1px solid #444; font-size: 16px;
+            background: rgba(0,0,0,0.8); padding: 20px; 
+            border-radius: 10px; z-index: 100; border: 1px solid #444;
         }
     </style>
 </head>
 <body>
-    <div id="loader">Connexion au serveur...</div>
+    <div id="loader">Chargement du moteur 3D...</div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        // Importation du moteur 3D (version ultra-stable)
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/+esm";
+        // Nouveau lien beaucoup plus stable
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/index.js";
 
         const canvas = document.getElementById("canvas");
         const loader = document.getElementById("loader");
@@ -33,10 +32,14 @@
                 const camera = new SPLAT.Camera();
                 const controls = new SPLAT.OrbitControls(camera, canvas);
 
-                camera.position.z = 7; // Recule un peu la caméra au début
+                loader.innerHTML = "Recherche du fichier .splat...";
+
+                // On vérifie si le fichier existe avant de le charger
+                const response = await fetch("./model.splat");
+                if (!response.ok) throw new Error("Fichier model.splat introuvable (Erreur " + response.status + ")");
+
                 loader.innerHTML = "Téléchargement du village (59 Mo)...";
 
-                // Chargement du fichier .splat
                 await SPLAT.Loader.LoadAsync("./model.splat", scene, (progress) => {
                     loader.innerHTML = "Chargement : " + (progress * 100).toFixed(0) + "%";
                 });
@@ -52,17 +55,14 @@
 
             } catch (err) {
                 console.error(err);
-                loader.innerHTML = "❌ Erreur de chargement.<br>Vérifie que le fichier 'model.splat' est bien sur ton GitHub.";
+                loader.innerHTML = "❌ ERREUR : " + err.message + "<br><br>Vérifie que 'model.splat' est bien écrit en minuscules sur GitHub.";
             }
         }
 
         main();
 
-        // Gestion du redimensionnement de la fenêtre
         window.addEventListener("resize", () => {
-            // Le renderer est défini dans main, on ajuste la taille si besoin
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
