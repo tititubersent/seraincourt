@@ -9,7 +9,6 @@
         #canvas-container { width: 100vw; height: 100vh; }
     </style>
     
-    <!-- Déclaration des scripts locaux (identique à ce que vous aviez) -->
     <script type="importmap">
     {
         "imports": {
@@ -25,20 +24,20 @@
     <script type="module">
         import * as GaussianSplats3D from 'gaussian-splats-3d';
 
-        // 1. Initialisation du lecteur
+        // 1. Initialisation : la caméra est légèrement reculée pour ne pas planter
         const viewer = new GaussianSplats3D.Viewer({
-            'initialCameraPosition': [0, 0, 0], 
+            'initialCameraPosition': [0, 5, 10], 
             'initialCameraLookAt': [0, 0, 0]
         });
 
-        // 2. Chargement du fichier splat
+        // 2. Chargement du fichier
         viewer.addSplatScene('model.splat', {
             'showLoadingUI': true
         }).then(() => {
             viewer.start();
         });
 
-        // 3. LE FAMEUX OUTIL POUR TROUVER LA POSITION PARFAITE
+        // 3. L'OUTIL POUR TROUVER LA POSITION PARFAITE
         window.addEventListener('mouseup', () => {
             if (viewer.camera && viewer.controls) {
                 const px = viewer.camera.position.x.toFixed(3);
@@ -49,7 +48,6 @@
                 const ty = viewer.controls.target.y.toFixed(3);
                 const tz = viewer.controls.target.z.toFixed(3);
                 
-                // Affiche les coordonnées en couleurs dans la console
                 console.log(`%c👉 POSITION: [${px}, ${py}, ${pz}]`, 'color: #00ff00; font-size: 16px; font-weight: bold;');
                 console.log(`%c👉 REGARD: [${tx}, ${ty}, ${tz}]`, 'color: #00aaff; font-size: 16px; font-weight: bold;');
             }
