@@ -9,12 +9,11 @@
         #canvas-container { width: 100vw; height: 100vh; }
     </style>
     
-    <!-- Voici les BONS liens vers les outils 3D sur internet -->
     <script type="importmap">
     {
         "imports": {
-            "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
-            "gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
         }
     }
     </script>
@@ -23,9 +22,9 @@
     <div id="canvas-container"></div>
     
     <script type="module">
-        import * as GaussianSplats3D from 'gaussian-splats-3d';
+        import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-        // 1. Initialisation avec la caméra un peu reculée
+        // 1. Initialisation de la caméra
         const viewer = new GaussianSplats3D.Viewer({
             'initialCameraPosition': [0, 5, 10], 
             'initialCameraLookAt': [0, 0, 0]
