@@ -2,78 +2,57 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Seraincourt 3D - Chargement</title>
+    <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        #status { background: rgba(30,30,30,0.9); padding: 30px; border-radius: 15px; border: 1px solid #444; text-align: center; max-width: 80%; }
-        .bar { width: 200px; height: 6px; background: #222; margin: 15px auto; border-radius: 3px; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: #00ff88; transition: width 0.3s; }
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10; }
+        .progress { width: 200px; height: 4px; background: #333; margin-top: 10px; }
+        #bar { width: 0%; height: 100%; background: #00ff88; }
     </style>
 </head>
 <body>
-    <div id="status" style="z-index: 10;">
-        <div id="msg">Initialisation...</div>
-        <div class="bar"><div id="fill"></div></div>
+    <div id="loader">
+        <div id="status">Chargement du village...</div>
+        <div class="progress"><div id="bar"></div></div>
     </div>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="width: 100vw; height: 100vh;"></canvas>
 
     <script type="module">
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/index.js";
 
-        const msg = document.getElementById("msg");
-        const fill = document.getElementById("fill");
         const canvas = document.getElementById("canvas");
-        let renderer, scene, camera, controls;
+        const bar = document.getElementById("bar");
+        const status = document.getElementById("status");
 
-        async function main() {
+        // REMPLACE LE LIEN CI-DESSOUS par celui que tu as copié à l'étape 1.6
+        const urlFichier = "MET_TON_LIEN_ICI_ENTRE_LES_GUILLEMETS";
+
+        async function start() {
+            const renderer = new SPLAT.WebGLRenderer(canvas);
+            const scene = new SPLAT.Scene();
+            const camera = new SPLAT.Camera();
+            const controls = new SPLAT.OrbitControls(camera, canvas);
+
             try {
-                renderer = new SPLAT.WebGLRenderer(canvas);
-                scene = new SPLAT.Scene();
-                camera = new SPLAT.Camera();
-                controls = new SPLAT.OrbitControls(camera, canvas);
-
-                msg.innerText = "Vérification du fichier...";
-                
-                // On vérifie la taille réelle du fichier reçu
-                const res = await fetch("./model.splat");
-                const blob = await res.blob();
-                
-                if (blob.size < 1000) {
-                    throw new Error("Le fichier est vide ou n'est qu'un lien (LFS). Ré-uploade le fichier sur GitHub.");
-                }
-
-                msg.innerText = "Chargement du village (59 Mo)...";
-
-                await SPLAT.Loader.LoadAsync("./model.splat", scene, (p) => {
-                    const pct = Math.round(p * 100);
-                    msg.innerText = "Téléchargement : " + pct + "%";
-                    fill.style.width = pct + "%";
+                await SPLAT.Loader.LoadAsync(urlFichier, scene, (p) => {
+                    bar.style.width = (p * 100) + "%";
                 });
 
-                document.getElementById("status").style.display = "none";
+                document.getElementById("loader").style.display = "none";
 
-                function frame() {
+                const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
-                }
+                };
                 requestAnimationFrame(frame);
-
-            } catch (err) {
-                console.error(err);
-                msg.innerHTML = "<span style='color:#ff4444'>Erreur de format de fichier.</span><br><br>Ton fichier .splat semble mal exporté ou corrompu.<br><br>Conseil : Ré-exporte ton modèle depuis SuperSplat en choisissant bien 'Splat' (pas PLY).";
+            } catch (e) {
+                status.innerText = "Erreur de chargement. Vérifie le lien du fichier.";
+                console.error(e);
             }
         }
 
-        main();
-
-        window.addEventListener("resize", () => {
-            if (renderer) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-        });
+        start();
     </script>
 </body>
 </html>
