@@ -11,18 +11,25 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    let splat;
+
     try {
-        const splat = await SPLAT.Loader.LoadAsync("./model.splat");
-        scene.addObject(splat);
-        console.log("✅ modèle chargé");
-
-        // 🔥 AUTO FRAME (clé du problème)
-        camera.lookAt(splat.position);
-        camera.position.set(0, 0, 0.5);
-
+        splat = await SPLAT.Loader.LoadAsync("./model.splat");
+        console.log("✅ modèle chargé", splat);
     } catch (e) {
-        console.error("❌ erreur chargement model.splat :", e);
+        console.error("❌ chargement impossible :", e);
+        return; // STOP si ça charge pas
     }
+
+    if (!splat) {
+        console.error("❌ modèle undefined");
+        return;
+    }
+
+    scene.addObject(splat);
+
+    // ✅ caméra compatible gsplat
+    camera.position = { x: 0, y: 0, z: 2 };
 
     function frame() {
         controls.update();
