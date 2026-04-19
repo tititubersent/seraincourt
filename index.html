@@ -5,12 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seraincourt 3D</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; }
+        body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
+        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
+    <div id="loader">Chargement du modèle...</div>
     <canvas id="canvas"></canvas>
-    <script type="module" src="index.js"></script>
+
+    <script type="module">
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/dist/index.js";
+
+        const canvas = document.getElementById("canvas");
+        const loader = document.getElementById("loader");
+        const renderer = new SPLAT.WebGLRenderer(canvas);
+        const scene = new SPLAT.Scene();
+        const camera = new SPLAT.Camera();
+        const controls = new SPLAT.OrbitControls(camera, canvas);
+
+        camera.position.z = 5;
+
+        async function main() {
+            const url = "./model.splat"; 
+            try {
+                await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
+                    loader.innerHTML = "Chargement : " + (progress * 100).toFixed(0) + "%";
+                });
+                loader.style.display = "none"; // Cache le texte quand c'est fini
+            } catch (e) {
+                loader.innerHTML = "Erreur de chargement. Vérifie le fichier model.splat";
+                console.error(e);
+            }
+
+            function frame() {
+                controls.update();
+                renderer.render(scene, camera);
+                requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
+        main();
+
+        window.addEventListener("resize", () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
