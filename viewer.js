@@ -1,4 +1,5 @@
-import * as SPLAT from "https://unpkg.com/gsplat@latest";
+// On change de source pour forcer la mise à jour
+import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/dist/index.js";
 
 const canvas = document.getElementById("canvas");
 const renderer = new SPLAT.WebGLRenderer(canvas);
@@ -6,18 +7,14 @@ const scene = new SPLAT.Scene();
 const camera = new SPLAT.Camera();
 const controls = new SPLAT.OrbitControls(camera, canvas);
 
-// On initialise la position pour éviter l'erreur .equals()
-camera.position = new SPLAT.Vector3(0, 0, 5);
-
 async function main() {
     try {
         const url = "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat";
         await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
-            console.log("Chargement : " + (progress * 100).toFixed(0) + "%");
+            if (progress === 1) console.log("🚀 NOUVELLE VERSION CHARGÉE !");
         });
-        console.log("✅ Modèle chargé !");
     } catch (e) {
-        console.error("❌ Erreur :", e);
+        console.error("Erreur :", e);
     }
 
     function frame() {
@@ -25,7 +22,6 @@ async function main() {
         renderer.render(scene, camera);
         requestAnimationFrame(frame);
     }
-
     requestAnimationFrame(frame);
 }
 
