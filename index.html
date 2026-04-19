@@ -1,18 +1,49 @@
-<script type="module">
-import { Viewer } from "https://cdn.jsdelivr.net/npm/gaussian-splats-3d@0.4.3/build/gaussian-splats-3d.module.js";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Splat Viewer</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { width: 100vw; height: 100vh; display: block; }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
 
-const viewer = new Viewer({
-  canvas: document.getElementById("canvas"),
-  initialCameraPosition: [0, 0, 2],
-  initialCameraLookAt: [0, 0, 0]
-});
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-viewer.addSplatScene(
-  "https://github.com/tititubersent/seraincourt/raw/refs/heads/main/model.splat",
-  { progressiveLoad: true }
-).then(() => {
-  viewer.start();
-}).catch((e) => {
-  console.error("Erreur :", e);
+<script>
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById("canvas")
 });
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+camera.position.z = 2;
+
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+function animate() {
+  requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+
+animate();
 </script>
+
+</body>
+</html>
