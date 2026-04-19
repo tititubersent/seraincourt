@@ -11,28 +11,20 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let splat;
-
     try {
-        splat = await SPLAT.Loader.LoadAsync(
-            "https://raw.githubusercontent.com/antimatter15/splat/main/examples/assets/garden.splat"
-
+        // C'EST ICI LA CORRECTION MAGIQUE : On passe "scene" en 2ème paramètre !
+        await SPLAT.Loader.LoadAsync(
+            "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat",
+            scene,
+            () => {}
         );
-        console.log("✅ modèle chargé");
+        console.log("✅ modèle chargé avec succès !");
     } catch (e) {
         console.error("❌ erreur chargement :", e);
         return;
     }
 
-    if (!splat) {
-        console.error("❌ modèle undefined");
-        return;
-    }
-
-    // ✅ version gsplat
-    scene.add(splat);
-
-    // ✅ caméra gsplat
+    // Caméra de gsplat
     camera.position = { x: 0, y: 0, z: 2 };
 
     function frame() {
