@@ -3,35 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <title>Seraincourt 3D</title>
+
   <style>
-    body { margin: 0; overflow: hidden; background: black; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
   </style>
+
+  <!-- ✅ FIX three.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.157.0/build/three.module.js"
+    }
+  }
+  </script>
+
 </head>
+
 <body>
 
 <script type="module">
 import * as SPLAT from './viewer.js';
 
+// ✅ scène
 const scene = new SPLAT.Scene();
 const camera = new SPLAT.Camera();
 const renderer = new SPLAT.WebGLRenderer();
 
 document.body.appendChild(renderer.domElement);
 
-// ✅ charge ton fichier
+// ✅ taille écran
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+// ✅ charger le modèle
 const splat = await SPLAT.Loader.load('./model.splat');
 scene.add(splat);
 
-// ✅ position caméra (important)
+// ✅ caméra
 camera.position.set(0, 0, 3);
 
-// rendu
+// ✅ resize auto
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ✅ animation
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
-animate();
 
+animate();
 </script>
 
 </body>
