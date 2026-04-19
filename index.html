@@ -34,6 +34,22 @@
         .then(() => {
             viewer.start();
         });
+
+        // LE MOUCHARD POUR TROUVER LA POSITION !
+        window.addEventListener('mouseup', () => {
+            if (viewer.camera && viewer.controls) {
+                const px = viewer.camera.position.x.toFixed(3);
+                const py = viewer.camera.position.y.toFixed(3);
+                const pz = viewer.camera.position.z.toFixed(3);
+                
+                const tx = viewer.controls.target.x.toFixed(3);
+                const ty = viewer.controls.target.y.toFixed(3);
+                const tz = viewer.controls.target.z.toFixed(3);
+                
+                console.log(`%c👉 POSITION: [${px}, ${py}, ${pz}]`, 'color: #00ff00; font-size: 16px; font-weight: bold;');
+                console.log(`%c👉 REGARD: [${tx}, ${ty}, ${tz}]`, 'color: #00aaff; font-size: 16px; font-weight: bold;');
+            }
+        });
     </script>
 </body>
 </html>
