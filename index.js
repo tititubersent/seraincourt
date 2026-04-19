@@ -9,19 +9,10 @@ const controls = new SPLAT.OrbitControls(camera, canvas);
 camera.position.z = 5;
 
 async function main() {
-    try {
-        const url = "./model.splat"; 
-        console.log("Chargement du modèle...");
-        
-        await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
-            console.log("Chargement : " + (progress * 100).toFixed(0) + "%");
-        });
-        
-        console.log("✅ MODÈLE CHARGÉ !");
-        
-    } catch (e) {
-        console.error("❌ Erreur de chargement", e);
-    }
+    const url = "./model.splat"; 
+    await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
+        console.log("Chargement : " + (progress * 100).toFixed(0) + "%");
+    });
 
     function frame() {
         controls.update();
