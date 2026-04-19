@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Village de Seraincourt 3D</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Seraincourt - 3D</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10; }
-        .progress { width: 200px; height: 4px; background: #333; margin-top: 10px; }
-        #bar { width: 0%; height: 100%; background: #00ff88; }
+        body { margin: 0; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; }
     </style>
 </head>
 <body>
-    <div id="loader">
-        <div id="status">Chargement du village...</div>
-        <div class="progress"><div id="bar"></div></div>
-    </div>
-    <canvas id="canvas" style="width: 100vw; height: 100vh;"></canvas>
-
+    <div id="loading" class="loading">Chargement du village...</div>
+    
+    <!-- Script du viewer spécial Splat -->
     <script type="module">
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/index.js";
+        import * as THREE from 'https://unpkg.com/three@0.157.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js';
+        import { LumaSplatsThree } from 'https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library.js';
 
-        const canvas = document.getElementById("canvas");
-        const bar = document.getElementById("bar");
-        const status = document.getElementById("status");
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 5);
 
-        // REMPLACE LE LIEN CI-DESSOUS par celui que tu as copié à l'étape 1.6
-        const urlFichier = "MET_TON_LIEN_ICI_ENTRE_LES_GUILLEMETS";
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-        async function start() {
-            const renderer = new SPLAT.WebGLRenderer(canvas);
-            const scene = new SPLAT.Scene();
-            const camera = new SPLAT.Camera();
-            const controls = new SPLAT.OrbitControls(camera, canvas);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
 
-            try {
-                await SPLAT.Loader.LoadAsync(urlFichier, scene, (p) => {
-                    bar.style.width = (p * 100) + "%";
-                });
+        // TON LIEN DIRECT VERS LA RELEASE
+        const splat = new LumaSplatsThree({
+            source: 'https://github.com/tititubersent/seraincourt/releases/download/v1/model.splat'
+        });
 
-                document.getElementById("loader").style.display = "none";
+        scene.add(splat);
 
-                const frame = () => {
-                    controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-                requestAnimationFrame(frame);
-            } catch (e) {
-                status.innerText = "Erreur de chargement. Vérifie le lien du fichier.";
-                console.error(e);
-            }
+        splat.onLoad = () => {
+            document.getElementById('loading').style.display = 'none';
+        };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
         }
+        animate();
 
-        start();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
