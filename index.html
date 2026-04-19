@@ -2,64 +2,78 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Village de Seraincourt 3D</title>
+    <title>Seraincourt 3D - Chargement</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
-        #status { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            text-align: center; background: rgba(20,20,20,0.9); padding: 30px; 
-            border: 2px solid #444; border-radius: 15px; z-index: 10; min-width: 250px;
-        }
-        .progress-bar { width: 100%; height: 10px; background: #222; margin-top: 10px; border-radius: 5px; }
-        #fill { width: 0%; height: 100%; background: #00ff88; border-radius: 5px; transition: width 0.2s; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        #status { background: rgba(30,30,30,0.9); padding: 30px; border-radius: 15px; border: 1px solid #444; text-align: center; max-width: 80%; }
+        .bar { width: 200px; height: 6px; background: #222; margin: 15px auto; border-radius: 3px; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #00ff88; transition: width 0.3s; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
     </style>
 </head>
 <body>
-    <div id="status">
-        <div id="msg">Initialisation du moteur 3D...</div>
-        <div class="progress-bar"><div id="fill"></div></div>
+    <div id="status" style="z-index: 10;">
+        <div id="msg">Initialisation...</div>
+        <div class="bar"><div id="fill"></div></div>
     </div>
-    <canvas id="canvas" style="width: 100vw; height: 100vh;"></canvas>
+    <canvas id="canvas"></canvas>
 
     <script type="module">
-        // On utilise un lien de secours ultra-fiable
-        import * as SPLAT from "https://unpkg.com/gsplat@1.2.0/dist/index.js";
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/index.js";
 
         const msg = document.getElementById("msg");
         const fill = document.getElementById("fill");
+        const canvas = document.getElementById("canvas");
+        let renderer, scene, camera, controls;
 
-        async function start() {
+        async function main() {
             try {
-                const renderer = new SPLAT.WebGLRenderer(document.getElementById("canvas"));
-                const scene = new SPLAT.Scene();
-                const camera = new SPLAT.Camera();
-                const controls = new SPLAT.OrbitControls(camera, renderer.canvas);
+                renderer = new SPLAT.WebGLRenderer(canvas);
+                scene = new SPLAT.Scene();
+                camera = new SPLAT.Camera();
+                controls = new SPLAT.OrbitControls(camera, canvas);
+
+                msg.innerText = "Vérification du fichier...";
                 
+                // On vérifie la taille réelle du fichier reçu
+                const res = await fetch("./model.splat");
+                const blob = await res.blob();
+                
+                if (blob.size < 1000) {
+                    throw new Error("Le fichier est vide ou n'est qu'un lien (LFS). Ré-uploade le fichier sur GitHub.");
+                }
+
                 msg.innerText = "Chargement du village (59 Mo)...";
 
-                // Le ?v=60 force GitHub à envoyer le fichier frais, sans cache
-                await SPLAT.Loader.LoadAsync("./model.splat?v=60", scene, (p) => {
+                await SPLAT.Loader.LoadAsync("./model.splat", scene, (p) => {
                     const pct = Math.round(p * 100);
-                    msg.innerText = "Chargement : " + pct + "%";
+                    msg.innerText = "Téléchargement : " + pct + "%";
                     fill.style.width = pct + "%";
                 });
 
                 document.getElementById("status").style.display = "none";
 
-                const frame = () => {
+                function frame() {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
-                };
+                }
                 requestAnimationFrame(frame);
 
-            } catch (e) {
-                msg.innerHTML = "❌ ERREUR : Le fichier model.splat est introuvable ou mal nommé sur GitHub.";
-                console.error(e);
+            } catch (err) {
+                console.error(err);
+                msg.innerHTML = "<span style='color:#ff4444'>Erreur de format de fichier.</span><br><br>Ton fichier .splat semble mal exporté ou corrompu.<br><br>Conseil : Ré-exporte ton modèle depuis SuperSplat en choisissant bien 'Splat' (pas PLY).";
             }
         }
 
-        start();
+        main();
+
+        window.addEventListener("resize", () => {
+            if (renderer) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
     </script>
 </body>
 </html>
