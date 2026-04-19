@@ -1,4 +1,3 @@
-// On change de source pour forcer la mise à jour
 import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/dist/index.js";
 
 const canvas = document.getElementById("canvas");
@@ -9,12 +8,16 @@ const controls = new SPLAT.OrbitControls(camera, canvas);
 
 async function main() {
     try {
-        const url = "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat";
+        // ICI : Remplace "ton_fichier.splat" par le nom exact de ton fichier sur GitHub
+        // Si ton fichier est à la racine, garde le "./" devant.
+        const url = "./ton_fichier.splat"; 
+        
         await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
-            if (progress === 1) console.log("🚀 NOUVELLE VERSION CHARGÉE !");
+            console.log("Chargement : " + (progress * 100).toFixed(0) + "%");
         });
+        console.log("✅ Ton modèle est chargé !");
     } catch (e) {
-        console.error("Erreur :", e);
+        console.error("❌ Erreur de chargement : Vérifie le nom du fichier .splat", e);
     }
 
     function frame() {
