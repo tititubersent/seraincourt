@@ -1,72 +1,28 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Ma Visite 3D</title>
+<!-- Script fiable -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background-color: #000;
-  }
-  canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-  }
+model-viewer {
+  width: 100%;
+  height: 600px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
 </style>
 
-<!-- ✅ Fix COI (important pour Gaussian Splats) -->
-<script>
-if (location.hostname !== "localhost") {
-  const script = document.createElement("script");
-  script.src = "./coi-serviceworker.js";
-  document.head.appendChild(script);
-}
-</script>
+<model-viewer 
+  src="https://raw.githubusercontent.com/tititubersent/seraincourt/main/seraincourt-hd.glb"
+  alt="Modèle 3D Domaine de Seraincourt"
 
-<!-- ✅ Import des librairies -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-    "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
-  }
-}
-</script>
+  camera-controls
+  auto-rotate
 
-</head>
+  camera-orbit="0deg 75deg 10m"
+  camera-target="0m 0m 0m"
+  field-of-view="45deg"
 
-<body>
+  exposure="1"
+  shadow-intensity="1"
 
-<script type="module">
-import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
-
-const viewer = new GaussianSplats3D.Viewer({
-    initialCameraPosition: [0, 10, 30],
-    initialCameraLookAt: [0, 0, 0],
-    sharedMemoryForWorkers: false
-});
-
-viewer.addSplatScene("model.splat", {
-    progressiveLoad: true
-})
-.then(() => {
-    console.log("✅ Splat chargé");
-    viewer.start();
-})
-.catch((error) => {
-    console.error("❌ Erreur :", error);
-
-    document.body.innerHTML = `
-      <div style="color:white; font-family:sans-serif; padding:20px;">
-        ❌ Erreur de chargement du modèle<br><br>
-        Vérifie que <b>model.splat</b> est bien présent.
-      </div>
-    `;
-});
-</script>
-
-</body>
-</html>
+  loading="eager">
+</model-viewer>
