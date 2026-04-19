@@ -9,11 +9,12 @@
         #canvas-container { width: 100vw; height: 100vh; }
     </style>
     
+    <!-- Voici les BONS liens vers les outils 3D sur internet -->
     <script type="importmap">
     {
         "imports": {
-            "three": "./three.module.js",
-            "gaussian-splats-3d": "./gaussian-splats-3d.module.js"
+            "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+            "gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
         }
     }
     </script>
@@ -24,20 +25,20 @@
     <script type="module">
         import * as GaussianSplats3D from 'gaussian-splats-3d';
 
-        // 1. Initialisation : la caméra est légèrement reculée pour ne pas planter
+        // 1. Initialisation avec la caméra un peu reculée
         const viewer = new GaussianSplats3D.Viewer({
             'initialCameraPosition': [0, 5, 10], 
             'initialCameraLookAt': [0, 0, 0]
         });
 
-        // 2. Chargement du fichier
+        // 2. Chargement du fichier splat
         viewer.addSplatScene('model.splat', {
             'showLoadingUI': true
         }).then(() => {
             viewer.start();
         });
 
-        // 3. L'OUTIL POUR TROUVER LA POSITION PARFAITE
+        // 3. LE MOUCHARD POUR TROUVER LA POSITION
         window.addEventListener('mouseup', () => {
             if (viewer.camera && viewer.controls) {
                 const px = viewer.camera.position.x.toFixed(3);
