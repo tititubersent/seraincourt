@@ -1,38 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Ma Visite 3D</title>
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-    </style>
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-            "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
-        }
-    }
-    </script>
+<meta charset="UTF-8">
+<title>Ma Visite 3D</title>
+
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #000;
+  }
+  canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+
+<!-- ✅ Fix COI (important pour Gaussian Splats) -->
+<script>
+if (location.hostname !== "localhost") {
+  const script = document.createElement("script");
+  script.src = "./coi-serviceworker.js";
+  document.head.appendChild(script);
+}
+</script>
+
+<!-- ✅ Import des librairies -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+    "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d/build/gaussian-splats-3d.module.js"
+  }
+}
+</script>
+
 </head>
+
 <body>
-    <script type="module">
-        import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-        // Retour à la configuration stable qui fonctionnait
-        const viewer = new GaussianSplats3D.Viewer({
-            'initialCameraPosition': [0, 20, 50],
-            'initialCameraLookAt': [0, 0, 0],
-            'sharedMemoryForWorkers': false
-        });
+<script type="module">
+import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-        viewer.addSplatScene('./model.splat', {
-            'progressiveLoad': true
-        })
-        .then(() => {
-            viewer.start();
-        });
-    </script>
+const viewer = new GaussianSplats3D.Viewer({
+    initialCameraPosition: [0, 10, 30],
+    initialCameraLookAt: [0, 0, 0],
+    sharedMemoryForWorkers: false
+});
+
+viewer.addSplatScene("model.splat", {
+    progressiveLoad: true
+})
+.then(() => {
+    console.log("✅ Splat chargé");
+    viewer.start();
+})
+.catch((error) => {
+    console.error("❌ Erreur :", error);
+
+    document.body.innerHTML = `
+      <div style="color:white; font-family:sans-serif; padding:20px;">
+        ❌ Erreur de chargement du modèle<br><br>
+        Vérifie que <b>model.splat</b> est bien présent.
+      </div>
+    `;
+});
+</script>
+
 </body>
 </html>
