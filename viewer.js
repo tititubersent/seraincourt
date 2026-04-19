@@ -1,6 +1,5 @@
 import * as SPLAT from "https://unpkg.com/gsplat@latest";
 
-// attendre que le DOM soit prêt
 window.addEventListener("DOMContentLoaded", async () => {
 
     const canvas = document.getElementById("canvas");
@@ -12,8 +11,13 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const splat = await SPLAT.Loader.LoadAsync("model.splat");
-    scene.addObject(splat);
+    try {
+        const splat = await SPLAT.Loader.LoadAsync("./model.splat");
+        scene.addObject(splat);
+        console.log("✅ modèle chargé");
+    } catch (e) {
+        console.error("❌ erreur chargement model.splat :", e);
+    }
 
     camera.position.set(0, 0, 3);
 
