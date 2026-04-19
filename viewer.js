@@ -14,7 +14,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     let splat;
 
     try {
-        // ✅ modèle de test (IMPORTANT)
         splat = await SPLAT.Loader.LoadAsync(
             "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat"
         );
@@ -29,9 +28,10 @@ window.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    scene.addObject(splat);
+    // ✅ version gsplat
+    scene.add(splat);
 
-    // ✅ caméra simple compatible
+    // ✅ caméra gsplat
     camera.position = { x: 0, y: 0, z: 2 };
 
     function frame() {
