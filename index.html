@@ -7,16 +7,16 @@
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
-        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; z-index: 10; }
+        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; z-index: 10; border: 1px solid #444; }
     </style>
 </head>
 <body>
-    <div id="loader">Connexion au moteur 3D...</div>
+    <div id="loader">Initialisation...</div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        // J'ai mis à jour ce lien vers une version stable qui fonctionne
-        import * as SPLAT from "https://unpkg.com/gsplat@1.2.0/dist/index.js";
+        // Version 1.1.10 qui est la plus stable
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/dist/index.js";
 
         const canvas = document.getElementById("canvas");
         const loader = document.getElementById("loader");
@@ -28,15 +28,17 @@
         camera.position.z = 5;
 
         async function main() {
-            const url = "./model.splat"; 
             try {
-                loader.innerHTML = "Téléchargement du modèle (20Mo)...";
+                const url = "./model.splat";
+                loader.innerHTML = "Téléchargement du modèle...";
+                
                 await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
                     loader.innerHTML = "Chargement : " + (progress * 100).toFixed(0) + "%";
                 });
+                
                 loader.style.display = "none";
             } catch (e) {
-                loader.innerHTML = "Erreur : " + e.message;
+                loader.innerHTML = "Erreur : Fichier mal lu ou corrompu.<br>Vérifie que model.splat fait bien 20Mo sur GitHub.";
                 console.error(e);
             }
 
