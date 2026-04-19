@@ -15,7 +15,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     try {
         splat = await SPLAT.Loader.LoadAsync(
-            "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat"
+            "https://raw.githubusercontent.com/antimatter15/splat/main/examples/assets/garden.splat"
+
         );
         console.log("✅ modèle chargé");
     } catch (e) {
