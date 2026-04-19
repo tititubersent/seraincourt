@@ -2,47 +2,36 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Splat Viewer</title>
+  <title>Seraincourt 3D</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { width: 100vw; height: 100vh; display: block; }
+    body { margin: 0; overflow: hidden; background: black; }
   </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script type="module">
+import * as SPLAT from './viewer.js';
 
-<script>
-const scene = new THREE.Scene();
+const scene = new SPLAT.Scene();
+const camera = new SPLAT.Camera();
+const renderer = new SPLAT.WebGLRenderer();
 
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+document.body.appendChild(renderer.domElement);
 
-const renderer = new THREE.WebGLRenderer({
-  canvas: document.getElementById("canvas")
-});
-renderer.setSize(window.innerWidth, window.innerHeight);
+// ✅ charge ton fichier
+const splat = await SPLAT.Loader.load('./model.splat');
+scene.add(splat);
 
-camera.position.z = 2;
+// ✅ position caméra (important)
+camera.position.set(0, 0, 3);
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
+// rendu
 function animate() {
   requestAnimationFrame(animate);
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
   renderer.render(scene, camera);
 }
-
 animate();
+
 </script>
 
 </body>
