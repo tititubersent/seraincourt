@@ -12,7 +12,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     try {
-        // C'EST ICI LA CORRECTION MAGIQUE : On passe "scene" en 2ème paramètre !
         await SPLAT.Loader.LoadAsync(
             "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat",
             scene,
@@ -24,8 +23,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // Caméra de gsplat
-    camera.position = { x: 0, y: 0, z: 2 };
+    // CORRECTION ICI : On change la position proprement
+    camera.position.z = 5; 
+    camera.position.y = 1;
 
     function frame() {
         controls.update();
