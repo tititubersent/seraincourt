@@ -1,32 +1,9 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Splat Viewer</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #000;
-    }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-  </style>
-</head>
-<body>
-
-<canvas id="canvas"></canvas>
-
 <script type="module">
-import { Viewer } from "https://unpkg.com/gaussian-splats-3d@latest/build/gaussian-splats-3d.module.js";
+import { Viewer } from "https://unpkg.com/gaussian-splats-3d@0.4.3/build/gaussian-splats-3d.module.js";
 
 const viewer = new Viewer({
   canvas: document.getElementById("canvas"),
-  cameraUp: [0, -1, -0.6],
-  initialCameraPosition: [-5, -1, -1],
+  initialCameraPosition: [0, 0, 2],
   initialCameraLookAt: [0, 0, 0]
 });
 
@@ -39,6 +16,3 @@ viewer.addSplatScene(
   console.error("Erreur :", e);
 });
 </script>
-
-</body>
-</html>
