@@ -14,11 +14,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     let splat;
 
     try {
-        splat = await SPLAT.Loader.LoadAsync("./model.splat");
-        console.log("✅ modèle chargé", splat);
+        // ✅ modèle de test (IMPORTANT)
+        splat = await SPLAT.Loader.LoadAsync(
+            "https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat"
+        );
+        console.log("✅ modèle chargé");
     } catch (e) {
-        console.error("❌ chargement impossible :", e);
-        return; // STOP si ça charge pas
+        console.error("❌ erreur chargement :", e);
+        return;
     }
 
     if (!splat) {
@@ -28,7 +31,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     scene.addObject(splat);
 
-    // ✅ caméra compatible gsplat
+    // ✅ caméra simple compatible
     camera.position = { x: 0, y: 0, z: 2 };
 
     function frame() {
