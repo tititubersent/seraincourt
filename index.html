@@ -16,17 +16,16 @@
         }
     }
     </script>
-    <!-- Le fameux script pour débloquer la mémoire 3D -->
-    <script src="coi-serviceworker.js"></script>
 </head>
 <body>
     <script type="module">
         import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-        // On a reculé la caméra à 20 et on l'a montée à 5 pour avoir une vue plongeante
+        // Initialisation de la caméra
         const viewer = new GaussianSplats3D.Viewer({
             'initialCameraPosition': [0, 20, 50],
-            'initialCameraLookAt': [0, 0, 0]
+            'initialCameraLookAt': [0, 0, 0],
+            'sharedMemoryForWorkers': false // On force le mode "sans échec" pour éviter les plantages
         });
 
         viewer.addSplatScene('./model.splat', {
