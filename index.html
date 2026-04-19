@@ -1,28 +1,44 @@
-<!-- Script fiable -->
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Splat Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
 
-<style>
-model-viewer {
-  width: 100%;
-  height: 600px;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-}
-</style>
+<canvas id="canvas"></canvas>
 
-<model-viewer 
-  src="https://raw.githubusercontent.com/tititubersent/seraincourt/main/seraincourt-hd.glb"
-  alt="Modèle 3D Domaine de Seraincourt"
+<script type="module">
+import { Viewer } from "https://unpkg.com/gaussian-splats-3d@latest/build/gaussian-splats-3d.module.js";
 
-  camera-controls
-  auto-rotate
+const viewer = new Viewer({
+  canvas: document.getElementById("canvas"),
+  cameraUp: [0, -1, -0.6],
+  initialCameraPosition: [-5, -1, -1],
+  initialCameraLookAt: [0, 0, 0]
+});
 
-  camera-orbit="0deg 75deg 10m"
-  camera-target="0m 0m 0m"
-  field-of-view="45deg"
+viewer.addSplatScene(
+  "https://github.com/tititubersent/seraincourt/raw/refs/heads/main/model.splat",
+  { progressiveLoad: true }
+).then(() => {
+  viewer.start();
+}).catch((e) => {
+  console.error("Erreur :", e);
+});
+</script>
 
-  exposure="1"
-  shadow-intensity="1"
-
-  loading="eager">
-</model-viewer>
+</body>
+</html>
