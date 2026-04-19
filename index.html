@@ -7,7 +7,6 @@
         body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
         canvas { display: block; width: 100vw; height: 100vh; }
     </style>
-    <!-- Chargement du lecteur 3D -->
     <script type="importmap">
     {
         "imports": {
@@ -21,11 +20,10 @@
     <script type="module">
         import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
-        // Initialisation de la caméra
         const viewer = new GaussianSplats3D.Viewer({
             'initialCameraPosition': [0, 20, 50],
             'initialCameraLookAt': [0, 0, 0],
-            'sharedMemoryForWorkers': false // On force le mode "sans échec" pour éviter les plantages
+            'sharedMemoryForWorkers': false
         });
 
         viewer.addSplatScene('./model.splat', {
@@ -35,22 +33,16 @@
             viewer.start();
         });
 
-        // LE MOUCHARD POUR TROUVER LA POSITION !
-        window.addEventListener('mouseup', () => {
-            if (viewer.camera && viewer.controls) {
+        // NOUVEAU MOUCHARD AUTOMATIQUE (Toutes les 3 secondes)
+        setInterval(() => {
+            if (viewer.camera) {
                 const px = viewer.camera.position.x.toFixed(3);
                 const py = viewer.camera.position.y.toFixed(3);
                 const pz = viewer.camera.position.z.toFixed(3);
-                
-                const tx = viewer.controls.target.x.toFixed(3);
-                const ty = viewer.controls.target.y.toFixed(3);
-                const tz = viewer.controls.target.z.toFixed(3);
-                
                 console.log(`%c👉 POSITION: [${px}, ${py}, ${pz}]`, 'color: #00ff00; font-size: 16px; font-weight: bold;');
-                console.log(`%c👉 REGARD: [${tx}, ${ty}, ${tz}]`, 'color: #00aaff; font-size: 16px; font-weight: bold;');
             }
-        });
+        }, 3000);
+
     </script>
 </body>
 </html>
-
