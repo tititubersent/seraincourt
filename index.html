@@ -7,15 +7,16 @@
     <style>
         body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
-        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; }
+        #loader { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; z-index: 10; }
     </style>
 </head>
 <body>
-    <div id="loader">Chargement du modèle...</div>
+    <div id="loader">Connexion au moteur 3D...</div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.10/dist/index.js";
+        // J'ai mis à jour ce lien vers une version stable qui fonctionne
+        import * as SPLAT from "https://unpkg.com/gsplat@1.2.0/dist/index.js";
 
         const canvas = document.getElementById("canvas");
         const loader = document.getElementById("loader");
@@ -29,12 +30,13 @@
         async function main() {
             const url = "./model.splat"; 
             try {
+                loader.innerHTML = "Téléchargement du modèle (20Mo)...";
                 await SPLAT.Loader.LoadAsync(url, scene, (progress) => {
                     loader.innerHTML = "Chargement : " + (progress * 100).toFixed(0) + "%";
                 });
-                loader.style.display = "none"; // Cache le texte quand c'est fini
+                loader.style.display = "none";
             } catch (e) {
-                loader.innerHTML = "Erreur de chargement. Vérifie le fichier model.splat";
+                loader.innerHTML = "Erreur : " + e.message;
                 console.error(e);
             }
 
