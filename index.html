@@ -1,67 +1,36 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
+<html>
+  <head>
+    <meta charset="utf-8">
     <title>Village de Seraincourt 3D</title>
+    <!-- On utilise A-Frame, le moteur 3D le plus stable -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <!-- On utilise un composant spécial pour les fichiers .splat -->
+    <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
     <style>
-        body { margin: 0; background-color: #111; overflow: hidden; font-family: sans-serif; }
-        canvas { width: 100vw; height: 100vh; display: block; }
-        #loader {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; text-align: center; z-index: 10;
+        body { margin: 0; background-color: #000; }
+        #info {
+            position: absolute; bottom: 20px; width: 100%;
+            text-align: center; color: white; font-family: sans-serif;
+            z-index: 100; pointer-events: none;
         }
     </style>
-</head>
-<body>
-    <div id="loader">
-        <p id="status">Chargement du village...</p>
-        <h1 id="percent">0%</h1>
-    </div>
-    <canvas id="canvas"></canvas>
+  </head>
+  <body>
+    <div id="info">Utilisez la souris pour tourner et les touches ZQSD pour avancer</div>
 
-    <script type="module">
-        // CE LIEN EST VÉRIFIÉ ET FONCTIONNEL
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/gsplat.es.js";
+    <a-scene renderer="antialias: false; precision: medium;" background="color: #111">
+      
+      <!-- Chargement du village -->
+      <a-entity 
+        gaussian_splatting="src: model.splat;" 
+        rotation="0 0 0" 
+        position="0 1.6 -5">
+      </a-entity>
 
-        const canvas = document.getElementById("canvas");
-        const renderer = new SPLAT.WebGLRenderer(canvas);
-        const scene = new SPLAT.Scene();
-        const camera = new SPLAT.Camera();
-        const controls = new SPLAT.OrbitControls(camera, canvas);
-
-        async function main() {
-            try {
-                // On charge le fichier model.splat
-                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    document.getElementById("percent").innerText = Math.round(progress * 100) + "%";
-                });
-
-                // Une fois chargé, on cache le texte
-                document.getElementById("loader").style.display = "none";
-
-                // POSITION DE LA CAMÉRA (On recule pour voir le village)
-                camera.position = new SPLAT.Vector3(0, 10, 30);
-                camera.lookAt(new SPLAT.Vector3(0, 0, 0));
-
-                const frame = () => {
-                    controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-                requestAnimationFrame(frame);
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById("status").innerText = "Erreur de format de fichier.";
-                document.getElementById("percent").innerText = "❌";
-            }
-        }
-
-        main();
-
-        window.addEventListener("resize", () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
+      <!-- Caméra et contrôles -->
+      <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+      
+    </a-scene>
+  </body>
 </html>
