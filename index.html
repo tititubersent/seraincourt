@@ -3,35 +3,26 @@
   <head>
     <meta charset="utf-8">
     <title>Seraincourt 3D</title>
-    <!-- On utilise des versions ultra-stables des scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
+    <!-- On utilise uniquement ce qui a fonctionné lors de ta capture d'écran réussie -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
-    <style>
-        body { margin: 0; background-color: #87CEEB; } /* Fond bleu ciel */
-        #instructions {
-            position: absolute; bottom: 10px; width: 100%;
-            text-align: center; color: white; text-shadow: 1px 1px 2px black;
-            z-index: 10; font-family: sans-serif; pointer-events: none;
-        }
-    </style>
   </head>
-  <body>
-    <div id="instructions">Souris pour tourner | ZQSD pour bouger</div>
+  <body style="margin: 0; background-color: #000;">
+    
+    <div style="position: absolute; top: 10px; left: 10px; color: white; z-index: 100; font-family: sans-serif;">
+        Chargement du village... Si l'erreur 'RangeError' persiste, le fichier est corrompu.
+    </div>
 
-    <a-scene render-order="background, content">
-      <!-- Un ciel pour ne plus être dans le noir -->
-      <a-sky color="#87CEEB"></a-sky>
-
-      <!-- LE VILLAGE : On ajuste la position et l'échelle pour qu'il soit bien visible -->
+    <a-scene renderer="antialias: false; precision: medium;">
+      <!-- Le village avec les réglages de ta victoire -->
       <a-entity 
         gaussian_splatting="src: model.splat;" 
         rotation="0 0 0" 
-        position="0 1.5 -5"
-        scale="2 2 2">
+        position="0 1.5 -5">
       </a-entity>
 
-      <!-- LA CAMÉRA -->
-      <a-entity camera look-controls wasd-controls="acceleration: 20" position="0 1.6 0"></a-entity>
+      <!-- Caméra simple -->
+      <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
     </a-scene>
   </body>
 </html>
