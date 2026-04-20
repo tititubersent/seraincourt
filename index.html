@@ -2,67 +2,38 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Seraincourt 3D - FIX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village de Seraincourt 3D</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        #canvas { width: 100vw; height: 100vh; }
-        #info { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; border-radius: 5px; pointer-events: none; }
+        body { margin: 0; background-color: #000; font-family: sans-serif; }
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            --progress-bar-color: #00ff00;
+        }
+        .instruction {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
+            border-radius: 20px; pointer-events: none; z-index: 10;
+        }
     </style>
 </head>
 <body>
 
-    <div id="info">
-        <b>Village de Seraincourt</b><br>
-        <span id="status">Initialisation...</span>
-    </div>
+    <div class="instruction">Utilisez la souris pour tourner et zoomer</div>
 
-    <canvas id="canvas"></canvas>
+    <!-- On utilise model-viewer qui est le lecteur officiel de Google, très stable -->
+    <model-viewer 
+        src="model.splat" 
+        ar 
+        camera-controls 
+        touch-action="none" 
+        background-color="#000000"
+        shadow-intensity="1"
+        camera-orbit="0deg 75deg 10m"
+        alt="Vue 3D de Seraincourt">
+    </model-viewer>
 
-    <!-- On utilise Skypack : ça fusionne tout en UN SEUL fichier pour éviter ton erreur 404 -->
-    <script type="module">
-        import * as SPLAT from "https://cdn.skypack.dev/gsplat@1.1.0";
-
-        const canvas = document.getElementById("canvas");
-        const status = document.getElementById("status");
-
-        async function start() {
-            try {
-                const renderer = new SPLAT.WebGLRenderer(canvas);
-                const scene = new SPLAT.Scene();
-                const camera = new SPLAT.Camera();
-                const controls = new SPLAT.OrbitControls(camera, canvas);
-
-                status.innerText = "Téléchargement du fichier .splat...";
-
-                // Chargement du modèle
-                await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    status.innerText = "Chargement : " + Math.round(progress * 100) + "%";
-                });
-
-                status.innerText = "Chargé ! Si c'est noir, bougez la souris/doigt pour chercher le modèle.";
-
-                // POSITION DE LA CAMÉRA (Le secret de la visibilité)
-                // On place la caméra un peu loin pour être sûr de voir quelque chose
-                camera.position.set(0, 5, 15);
-                
-                const frame = () => {
-                    controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-                frame();
-
-            } catch (e) {
-                status.innerText = "ERREUR : Le fichier model.splat est introuvable ou corrompu.";
-                console.error(e);
-            }
-        }
-
-        start();
-
-        window.addEventListener("resize", () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
 </body>
 </html>
