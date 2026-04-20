@@ -3,57 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seraincourt 3D - Gaussian Splat</title>
+    <title>Village de Seraincourt - 3D Splat</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         canvas { width: 100%; height: 100%; display: block; }
-        #loading-screen {
+        #loader {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: black; display: flex; flex-direction: column;
             justify-content: center; align-items: center; color: white; z-index: 10;
         }
-        .loader { border: 4px solid #333; border-top: 4px solid #00ff00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        .spinner { border: 3px solid #333; border-top: 3px solid #00ff00; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <div class="loader"></div>
-        <div id="status">Chargement du village (Splat 3D)...</div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div id="status">Chargement de Seraincourt...</div>
     </div>
 
     <canvas id="canvas"></canvas>
 
     <script type="module">
+        // Utilisation du moteur spécialisé gsplat.js
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest";
 
         const canvas = document.getElementById("canvas");
-        const progressText = document.getElementById("status");
-        const loadingScreen = document.getElementById("loading-screen");
+        const status = document.getElementById("status");
+        const loader = document.getElementById("loader");
 
-        async function init() {
-            // 1. Configuration du moteur
+        async function main() {
             const renderer = new SPLAT.WebGLRenderer(canvas);
             const scene = new SPLAT.Scene();
             const camera = new SPLAT.Camera();
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
-            // 2. Chargement du modèle
             try {
-                // On charge le fichier model.splat
-                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    const percent = Math.round(progress * 100);
-                    progressText.innerText = `Téléchargement : ${percent}%`;
+                // Chargement du fichier model.splat
+                await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
+                    status.innerText = `Chargement : ${Math.round(progress * 100)}%`;
                 });
 
-                // 3. Masquer l'écran de chargement
-                loadingScreen.style.display = "none";
-
-                // Position de la caméra (tu pourras ajuster ces chiffres)
-                camera.position = new SPLAT.Vector3(0, 2, 5);
+                loader.style.display = "none";
                 
-                // 4. Boucle de rendu
+                // Positionnement de la caméra (ajustable selon le village)
+                camera.position = new SPLAT.Vector3(0, 2, 5);
+
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
@@ -61,15 +57,14 @@
                 };
                 requestAnimationFrame(frame);
 
-            } catch (error) {
-                console.error("Erreur de chargement :", error);
-                progressText.innerText = "Erreur : Le fichier .splat est introuvable ou corrompu.";
+            } catch (e) {
+                console.error(e);
+                status.innerText = "Erreur : Impossible de lire model.splat";
             }
         }
 
-        init();
+        main();
 
-        // Gestion du redimensionnement de la fenêtre
         window.addEventListener("resize", () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
