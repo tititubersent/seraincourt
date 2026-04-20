@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <!-- On utilise la version 3.4.0 qui gère très bien les Splats -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { margin: 0; background-color: #000; font-family: sans-serif; }
         model-viewer {
@@ -21,16 +22,14 @@
 </head>
 <body>
 
-    <div class="instruction">Chargement du village... (Patientez quelques secondes)</div>
+    <div class="instruction">Chargement du village (22 Mo)...</div>
 
     <model-viewer 
-        src="model.splat?v=1" 
-        ar 
+        src="model.splat" 
         camera-controls 
         touch-action="none" 
-        background-color="#000000"
-        shadow-intensity="1"
-        camera-orbit="0deg 75deg 15m"
+        disable-zoom="false"
+        loading="eager"
         alt="Vue 3D de Seraincourt">
     </model-viewer>
 
