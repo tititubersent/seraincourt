@@ -3,31 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seraincourt 3D</title>
+    <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #111; font-family: sans-serif; }
-        #viewer { width: 100vw; height: 100vh; display: block; }
-        .info { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.5); padding: 10px; pointer-events: none; }
+        body { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; }
+        canvas { width: 100%; height: 100%; display: block; }
+        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-family: sans-serif; }
     </style>
 </head>
 <body>
 
-    <div class="info">Chargement du village... (Utilisez la souris pour bouger)</div>
+    <div id="loading">Chargement du village...</div>
+    <canvas id="canvas"></canvas>
 
-    <!-- On utilise un lecteur universel très stable -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script type="module">
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/@g-splat/gsplat@1.1.0/dist/index.js";
 
-    <model-viewer 
-        id="viewer"
-        src="model.splat" 
-        camera-controls 
-        touch-action="none"
-        autoplay
-        ar
-        shadow-intensity="1"
-        camera-orbit="0deg 75deg 10m"
-        field-of-view="30deg">
-    </model-viewer>
+        const canvas = document.getElementById("canvas");
+        const renderer = new SPLAT.WebGLRenderer(canvas);
+        const scene = new SPLAT.Scene();
+        const camera = new SPLAT.Camera();
+        const controls = new SPLAT.OrbitControls(camera, canvas);
 
+        async function main() {
+            try {
+                // Chargement du fichier
+                await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
+                    document.getElementById("loading").innerText = "Chargement : " + Math.round(progress * 100) + "%";
+                });
+
+                document.getElementById("loading").style.display = "none";
+
+                // Animation
+                const frame = () => {
+                    controls.update();
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                };
+
+                // On cadre la vue sur le village
+                camera.position.set(0, 10, 20); 
+                
+                frame();
+            } catch (error) {
+                console.error(error);
+                document.getElementById("loading").innerText = "Erreur de lecture du fichier .splat";
+            }
+        }
+
+        main();
+
+        window.addEventListener("resize", () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
 </html>
