@@ -24,7 +24,6 @@
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        // Retour à la version qui ne fait pas d'erreur 404
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
 
         async function main() {
@@ -35,27 +34,18 @@
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.backgroundColor = new SPLAT.Color(0.1, 0.1, 0.1);
 
             try {
-                // Chargement du fichier model.splat
+                // Chargement simple
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
                     document.getElementById("percent").innerText = Math.round(p * 100) + "%";
                 });
 
                 document.getElementById("loader").style.display = "none";
 
-                // RECENTRAGE SÉCURISÉ (évite l'erreur 'x' que tu as eue)
-                // Si le centre automatique n'existe pas, on met le modèle à 0,0,0
-                if (splat && splat.data && splat.data.avgPosition) {
-                    const center = splat.data.avgPosition;
-                    splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
-                }
-
-                // On recule la caméra pour être sûr de voir le village de loin au début
-                camera.position = new SPLAT.Vector3(0, 50, 200);
-                controls.target = new SPLAT.Vector3(0, 0, 0);
-
+                // On place la caméra par défaut
+                camera.position = new SPLAT.Vector3(0, 10, 50);
+                
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
@@ -64,8 +54,8 @@
                 requestAnimationFrame(frame);
 
             } catch (error) {
-                console.error("Erreur détaillée:", error);
-                document.getElementById("status").innerText = "Erreur : " + error.message;
+                console.error(error);
+                document.getElementById("status").innerText = "Erreur de chargement";
             }
 
             window.addEventListener("resize", () => {
