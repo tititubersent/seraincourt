@@ -5,58 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background-color: #000; overflow: hidden; font-family: sans-serif; color: white; }
         #canvas-container { width: 100vw; height: 100vh; }
-        .instruction {
+        .ui {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); color: white; padding: 12px 24px;
-            border-radius: 30px; pointer-events: none; z-index: 10; text-align: center;
+            background: rgba(0,0,0,0.8); padding: 15px 25px; border-radius: 30px;
+            z-index: 10; text-align: center; border: 1px solid #444;
         }
+        #progress { color: #00ff00; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="instruction" id="status">Chargement du village (22 Mo)...</div>
-    <div id="canvas-container"></div>
+    <div class="ui" id="status-ui">
+        <span id="label">Initialisation...</span>
+        <span id="progress"></span>
+    </div>
+    
+    <canvas id="canvas-container"></canvas>
 
-    <!-- On utilise un lecteur spécialisé pour les fichiers .splat -->
     <script type="module">
-        import * as Splat from 'https://cdn.jsdelivr.net/npm/@g-splat/dots@latest/dist/index.js';
+        // Importation du moteur de rendu spécialisé
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
 
-        const container = document.getElementById('canvas-container');
-        const status = document.getElementById('status');
+        const canvas = document.getElementById("canvas-container");
+        const progress = document.getElementById("progress");
+        const label = document.getElementById("label");
+        const ui = document.getElementById("status-ui");
 
-        async function init() {
-            // Création de la scène 3D
-            const scene = new Splat.Scene();
-            const camera = new Splat.Camera();
-            const renderer = new Splat.WebGLRenderer(container);
-            const controls = new Splat.OrbitControls(camera, container);
+        async function main() {
+            // 1. Configuration de la scène
+            const renderer = new SPLAT.WebGLRenderer(canvas);
+            const scene = new SPLAT.Scene();
+            const camera = new SPLAT.Camera();
+            const controls = new SPLAT.OrbitControls(camera, canvas);
 
-            // Chargement du fichier
+            label.innerText = "Téléchargement du village : ";
+
+            // 2. Chargement du fichier .splat
             try {
-                await Splat.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    status.innerText = `Chargement : ${Math.round(progress * 100)}%`;
+                await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
+                    progress.innerText = Math.round(p * 100) + "%";
                 });
-                
-                status.innerText = "Utilisez la souris pour naviguer";
-                setTimeout(() => { status.style.display = 'none'; }, 5000);
 
-                // Animation
+                label.innerText = "Village chargé ! Utilisez la souris pour naviguer.";
+                progress.innerText = "";
+                
+                // Disparition de l'aide après 5 secondes
+                setTimeout(() => { ui.style.opacity = "0"; ui.style.transition = "1s"; }, 5000);
+
+                // 3. Boucle d'affichage
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
                 };
+
+                // Ajustement de la taille si on redimensionne la fenêtre
+                window.addEventListener("resize", () => {
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+
                 requestAnimationFrame(frame);
 
             } catch (error) {
                 console.error(error);
-                status.innerText = "Erreur de chargement. Vérifiez le fichier model.splat";
+                label.innerText = "Erreur : Fichier model.splat introuvable ou corrompu.";
+                label.style.color = "red";
             }
         }
 
-        init();
+        main();
     </script>
 </body>
 </html>
