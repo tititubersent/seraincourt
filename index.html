@@ -5,26 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; color: white; }
+        body { margin: 0; background-color: #1a1a1a; overflow: hidden; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); padding: 25px; border-radius: 15px;
-            z-index: 100; text-align: center; border: 1px solid #3498db;
+            background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px;
+            z-index: 100; text-align: center; color: white; border: 1px solid #3498db;
         }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div id="status" style="font-size: 18px; margin-bottom: 10px;">Chargement du village...</div>
-        <div id="percent" style="font-size: 30px; font-weight: bold; color: #3498db;">0%</div>
+        <div id="status">Chargement du village...</div>
+        <div id="percent" style="font-size: 24px; font-weight: bold; color: #3498db;">0%</div>
     </div>
     
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
+        // On utilise une version stable bien précise
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.2/dist/index.es.min.js";
 
         async function main() {
             const canvas = document.getElementById("canvas");
@@ -32,29 +33,22 @@
             const scene = new SPLAT.Scene();
             const camera = new SPLAT.Camera();
             const controls = new SPLAT.OrbitControls(camera, canvas);
-            const percent = document.getElementById("percent");
 
             renderer.setSize(window.innerWidth, window.innerHeight);
+            // Fond gris foncé pour mieux voir le modèle
+            renderer.backgroundColor = new SPLAT.Color(0.1, 0.1, 0.1);
 
             try {
-                // Chargement du fichier
+                console.log("Déchargement du fichier...");
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
-                    percent.innerText = Math.round(p * 100) + "%";
+                    document.getElementById("percent").innerText = Math.round(p * 100) + "%";
                 });
 
-                // On cache le loader
                 document.getElementById("loader").style.display = "none";
+                console.log("Chargement terminé !");
 
-                // RECENTRAGE SÉCURISÉ (évite l'erreur 'x')
-                if (splat.data && splat.data.avgPosition) {
-                    const center = splat.data.avgPosition;
-                    splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
-                } else {
-                    console.log("Impossible de trouver le centre automatiquement, utilisation de la position par défaut");
-                }
-
-                // Configuration de la caméra
-                camera.position = new SPLAT.Vector3(0, 50, 150); 
+                // On place la caméra très loin pour être sûr de voir quelque chose
+                camera.position = new SPLAT.Vector3(0, 30, 100);
                 controls.target = new SPLAT.Vector3(0, 0, 0);
 
                 const frame = () => {
@@ -64,10 +58,12 @@
                 };
                 requestAnimationFrame(frame);
 
+                // Si c'est toujours noir, essaie de bouger la souris ou de dézoomer
+                console.log("Rendu démarré. Si c'est noir, dézoomez avec la molette.");
+
             } catch (error) {
-                console.error(error);
-                document.getElementById("status").innerText = "Erreur de rendu";
-                document.getElementById("percent").innerText = "Détails en console";
+                console.error("Erreur de rendu:", error);
+                document.getElementById("status").innerText = "Erreur d'affichage";
             }
 
             window.addEventListener("resize", () => {
