@@ -1,66 +1,37 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seraincourt 3D - Version Finale</title>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Seraincourt 3D</title>
+    <!-- On utilise des versions ultra-stables des scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
+    <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
     <style>
-        body { margin: 0; background: radial-gradient(circle, #1a2a6c, #b21f1f, #fdbb2d); overflow: hidden; font-family: sans-serif; }
-        #canvas-container { width: 100vw; height: 100vh; }
-        #ui { position: absolute; top: 20px; left: 20px; color: white; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; pointer-events: none; }
-        .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; }
-    </style>
-</head>
-<body>
-
-    <div id="ui">
-        <h2 style="margin:0">Village de Seraincourt</h2>
-        <p style="font-size: 0.9em; opacity: 0.8;">Souris : Tourner | Clic droit : Panoramique | Molette : Zoom</p>
-    </div>
-
-    <div id="loading" class="loading">
-        <h1>Chargement du village...</h1>
-        <p>Merci de patienter, le fichier est volumineux.</p>
-    </div>
-
-    <div id="canvas-container"></div>
-
-    <!-- Utilisation de la bibliothèque GSPLAT.js officielle -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-            "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js",
-            "@mkkellogg/gaussian-splats-3d": "https://unpkg.com/@mkkellogg/gaussian-splats-3d@0.3.3/dist/gaussian-splats-3d.module.js"
+        body { margin: 0; background-color: #87CEEB; } /* Fond bleu ciel */
+        #instructions {
+            position: absolute; bottom: 10px; width: 100%;
+            text-align: center; color: white; text-shadow: 1px 1px 2px black;
+            z-index: 10; font-family: sans-serif; pointer-events: none;
         }
-    }
-    </script>
+    </style>
+  </head>
+  <body>
+    <div id="instructions">Souris pour tourner | ZQSD pour bouger</div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { GaussianSplats3D } from '@mkkellogg/gaussian-splats-3d';
+    <a-scene render-order="background, content">
+      <!-- Un ciel pour ne plus être dans le noir -->
+      <a-sky color="#87CEEB"></a-sky>
 
-        const viewer = new GaussianSplats3D({
-            'initialCameraPosition': [0, 10, 20],
-            'initialCameraLookAt': [0, 0, 0],
-            'sphericalHarmonicsDegree': 0
-        });
+      <!-- LE VILLAGE : On ajuste la position et l'échelle pour qu'il soit bien visible -->
+      <a-entity 
+        gaussian_splatting="src: model.splat;" 
+        rotation="0 0 0" 
+        position="0 1.5 -5"
+        scale="2 2 2">
+      </a-entity>
 
-        viewer.init()
-        .then(() => {
-            // CHARGEMENT DE TON FICHIER
-            return viewer.addSplatScene('model.splat', {
-                'splatAlphaThreshold': 0.1,
-                'showLoadingUI': false,
-                'position': [0, 0, 0],
-                'rotation': [0, 0, 0],
-                'scale': [1.5, 1.5, 1.5] // On l'agrandit un peu
-            });
-        })
-        .then(() => {
-            document.getElementById('loading').style.display = 'none';
-            viewer.start();
-        });
-    </script>
-</body>
+      <!-- LA CAMÉRA -->
+      <a-entity camera look-controls wasd-controls="acceleration: 20" position="0 1.6 0"></a-entity>
+    </a-scene>
+  </body>
 </html>
