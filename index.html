@@ -2,56 +2,51 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Village 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village 3D - Seraincourt</title>
+    <!-- On utilise le moteur 3D officiel de Google -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; background-color: #111; overflow: hidden; }
-        canvas { width: 100vw; height: 100vh; display: block; }
-        #loader {
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #111; overflow: hidden; }
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            background-color: #111;
+        }
+        .error-msg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-family: sans-serif; text-align: center;
+            color: white; font-family: sans-serif; display: none; text-align: center;
         }
     </style>
 </head>
 <body>
-    <div id="loader">Chargement : <span id="percent">0%</span></div>
-    <canvas id="canvas"></canvas>
 
-    <script type="module">
-        // LIEN CORRIGÉ (Vérifié 404)
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.9/dist/index.es.js";
+    <!-- On lui dit de charger model.splat, de centrer automatiquement et de permettre de tourner avec la souris -->
+    <model-viewer 
+        id="village"
+        src="model.splat" 
+        camera-controls 
+        auto-rotate
+        shadow-intensity="1"
+        alt="Village de Seraincourt 3D"
+        loading="eager">
+        
+        <div id="error" class="error-msg">
+            Impossible de trouver le fichier "model.splat".<br>
+            Vérifiez le nom du fichier sur GitHub.
+        </div>
+    </model-viewer>
 
-        const canvas = document.getElementById("canvas");
-        const renderer = new SPLAT.WebGLRenderer(canvas);
-        const scene = new SPLAT.Scene();
-        const camera = new SPLAT.Camera();
-        const controls = new SPLAT.OrbitControls(camera, canvas);
-
-        async function load() {
-            try {
-                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
-                    document.getElementById("percent").innerText = Math.round(p * 100) + "%";
-                });
-                
-                document.getElementById("loader").style.display = "none";
-                
-                // Placement automatique de la caméra
-                camera.position = new SPLAT.Vector3(0, 10, 50);
-                
-                const frame = () => {
-                    controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-                requestAnimationFrame(frame);
-            } catch (e) {
-                document.getElementById("loader").innerText = "Erreur de chargement du fichier .splat";
-                console.error(e);
-            }
-        }
-
-        load();
-
-        window.addEventListener("resize", () => renderer.setSize(window.innerWidth, window.innerHeight));
+    <script>
+        const viewer = document.getElementById('village');
+        const error = document.getElementById('error');
+        
+        // Si le fichier n'est pas trouvé sur ton GitHub
+        viewer.addEventListener('error', (e) => {
+            console.error("Erreur de chargement :", e);
+            error.style.display = 'block';
+        });
     </script>
+
 </body>
 </html>
