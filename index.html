@@ -2,24 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Seraincourt 3D</title>
-    <!-- On utilise exactement les scripts de ta première image réussie -->
+    <title>Village de Seraincourt</title>
+    <!-- On utilise la version stable d'A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <!-- Le script "lecteur" original -->
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
   </head>
   <body style="margin: 0; background-color: #000;">
-    
-    <div style="position: absolute; top: 10px; left: 10px; color: white; z-index: 100; font-family: sans-serif;">
-        Village de Seraincourt <br>
-        <small>Si l'écran reste noir, votre fichier "allégé" est trop corrompu.</small>
-    </div>
-
     <a-scene>
-      <!-- On enlève toute position ou échelle pour laisser le modèle à sa place d'origine -->
-      <a-entity gaussian_splatting="src: model.splat;"></a-entity>
+      <!-- Le village : On ne touche à rien -->
+      <a-entity gaussian_splatting="src: model.splat;" position="0 1.5 -5"></a-entity>
 
-      <!-- On recule la caméra (position 0 5 15) pour voir le village de loin au départ -->
-      <a-entity camera look-controls wasd-controls="acceleration: 30" position="0 5 15"></a-entity>
+      <!-- La caméra : On la met juste devant -->
+      <a-entity camera look-controls wasd-controls position="0 1.5 0"></a-entity>
     </a-scene>
   </body>
 </html>
