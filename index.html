@@ -2,24 +2,38 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Seraincourt 3D</title>
-    <!-- On utilise exactement les scripts de ta première image réussie -->
+    <title>Village de Seraincourt 3D</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #ui {
+        position: absolute; top: 20px; left: 20px; 
+        color: white; font-family: sans-serif; z-index: 10;
+        background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px;
+      }
+    </style>
   </head>
-  <body style="margin: 0; background-color: #000;">
-    
-    <div style="position: absolute; top: 10px; left: 10px; color: white; z-index: 100; font-family: sans-serif;">
-        Village de Seraincourt <br>
-        <small>Si l'écran reste noir, votre fichier "allégé" est trop corrompu.</small>
+  <body>
+    <div id="ui">
+      <b>Village de Seraincourt</b><br>
+      <small>Souris : Tourner | ZQSD : Avancer</small>
     </div>
 
-    <a-scene>
-      <!-- On enlève toute position ou échelle pour laisser le modèle à sa place d'origine -->
-      <a-entity gaussian_splatting="src: model.splat;"></a-entity>
+    <a-scene renderer="antialias: false; precision: medium;">
+      <!-- Fond de ciel -->
+      <a-sky color="#87CEEB"></a-sky>
 
-      <!-- On recule la caméra (position 0 5 15) pour voir le village de loin au départ -->
-      <a-entity camera look-controls wasd-controls="acceleration: 30" position="0 5 15"></a-entity>
+      <!-- LE VILLAGE : On l'agrandit et on le tourne pour qu'il soit à l'endroit -->
+      <a-entity 
+        gaussian_splatting="src: model.splat;" 
+        rotation="-90 0 0" 
+        scale="5 5 5"
+        position="0 0 -10">
+      </a-entity>
+
+      <!-- Caméra placée un peu en hauteur pour surplomber -->
+      <a-entity camera look-controls wasd-controls="acceleration: 20" position="0 5 0"></a-entity>
     </a-scene>
   </body>
 </html>
