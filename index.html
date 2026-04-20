@@ -2,27 +2,35 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Seraincourt 3D</title>
-    <!-- On utilise uniquement ce qui a fonctionné lors de ta capture d'écran réussie -->
+    <title>Village de Seraincourt 3D</title>
+    <!-- On utilise A-Frame, le moteur 3D le plus stable -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <!-- On utilise un composant spécial pour les fichiers .splat -->
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
+    <style>
+        body { margin: 0; background-color: #000; }
+        #info {
+            position: absolute; bottom: 20px; width: 100%;
+            text-align: center; color: white; font-family: sans-serif;
+            z-index: 100; pointer-events: none;
+        }
+    </style>
   </head>
-  <body style="margin: 0; background-color: #000;">
-    
-    <div style="position: absolute; top: 10px; left: 10px; color: white; z-index: 100; font-family: sans-serif;">
-        Chargement du village... Si l'erreur 'RangeError' persiste, le fichier est corrompu.
-    </div>
+  <body>
+    <div id="info">Utilisez la souris pour tourner et les touches ZQSD pour avancer</div>
 
-    <a-scene renderer="antialias: false; precision: medium;">
-      <!-- Le village avec les réglages de ta victoire -->
+    <a-scene renderer="antialias: false; precision: medium;" background="color: #111">
+      
+      <!-- Chargement du village -->
       <a-entity 
         gaussian_splatting="src: model.splat;" 
         rotation="0 0 0" 
-        position="0 1.5 -5">
+        position="0 1.6 -5">
       </a-entity>
 
-      <!-- Caméra simple -->
+      <!-- Caméra et contrôles -->
       <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+      
     </a-scene>
   </body>
 </html>
