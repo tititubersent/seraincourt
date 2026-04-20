@@ -5,28 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #1a1a2e; overflow: hidden; font-family: sans-serif; color: white; }
+        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
-        .ui {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); padding: 15px 25px; border-radius: 30px;
-            z-index: 10; text-align: center; border: 1px solid #444;
+        #loader {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px;
+            z-index: 100; text-align: center; border: 1px solid #3498db;
         }
     </style>
 </head>
 <body>
 
-    <div class="ui">
-        <span id="label">Analyse du village...</span>
-    </div>
-    
+    <div id="loader">Chargement du village... <br><span id="percent">0%</span></div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
 
         const canvas = document.getElementById("canvas");
-        const label = document.getElementById("label");
+        const loader = document.getElementById("loader");
+        const percent = document.getElementById("percent");
 
         async function main() {
             const renderer = new SPLAT.WebGLRenderer(canvas);
@@ -35,43 +33,43 @@
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.backgroundColor = new SPLAT.Color32(26, 26, 46, 255);
 
             try {
+                // Chargement du fichier
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
-                    label.innerText = "Chargement : " + Math.round(p * 100) + "%";
+                    percent.innerText = Math.round(p * 100) + "%";
                 });
 
-                label.innerText = "Village chargé ! Ajustement automatique...";
+                // Cacher le loader
+                loader.style.display = "none";
 
-                // --- PROCEDURE DE SAUVETAGE ---
-                // 1. On attend que les données soient prêtes
-                setTimeout(() => {
-                    // 2. On force le recentrage du modèle au point 0,0,0
-                    const center = splat.data.avgPosition;
-                    splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
-                    
-                    // 3. On place la caméra à une distance raisonnable
-                    camera.position = new SPLAT.Vector3(0, 5, 20);
-                    controls.target = new SPLAT.Vector3(0, 0, 0);
-                    
-                    label.innerText = "Village centré ! Utilisez la souris pour naviguer.";
-                }, 1000);
+                // --- CALCUL DU CENTRE AUTOMATIQUE ---
+                // On récupère la position moyenne de tous les points du village
+                const center = splat.data.avgPosition;
+                
+                // On déplace le village au centre du monde (0,0,0) pour ne plus être perdu
+                splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
+                
+                // On règle la caméra pour qu'elle regarde le centre
+                camera.position = new SPLAT.Vector3(0, 30, 100); // Vue de haut et d'un peu loin
+                controls.target = new SPLAT.Vector3(0, 0, 0);
+                controls.update();
 
+                // Boucle de rendu
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
                 };
 
+                requestAnimationFrame(frame);
+
                 window.addEventListener("resize", () => {
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
 
-                requestAnimationFrame(frame);
-
             } catch (error) {
-                label.innerText = "Erreur fatale : " + error.message;
+                loader.innerHTML = "Erreur : " + error.message;
             }
         }
 
