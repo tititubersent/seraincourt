@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #1a1a1a; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background-color: #2c3e50; overflow: hidden; font-family: sans-serif; }
         canvas { width: 100vw; height: 100vh; display: block; }
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px;
-            z-index: 100; text-align: center; color: white; border: 1px solid #3498db;
+            z-index: 100; text-align: center; color: white; border: 2px solid #3498db;
         }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div id="status">Chargement du village...</div>
+        <div id="status">Recherche du village dans l'espace...</div>
         <div id="percent" style="font-size: 24px; font-weight: bold; color: #3498db;">0%</div>
     </div>
     
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.1.9/dist/index.es.min.js";
 
         async function main() {
             const canvas = document.getElementById("canvas");
@@ -34,18 +34,28 @@
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.backgroundColor = new SPLAT.Color(0.17, 0.24, 0.31); // Fond gris-bleu pour voir si le canvas marche
 
             try {
-                // Chargement simple
+                // Chargement du fichier
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
                     document.getElementById("percent").innerText = Math.round(p * 100) + "%";
                 });
 
                 document.getElementById("loader").style.display = "none";
 
-                // On place la caméra par défaut
-                camera.position = new SPLAT.Vector3(0, 10, 50);
+                // --- LA MAGIE DU CENTRAGE ---
+                // On calcule le centre réel du modèle (peu importe où il est caché)
+                const center = splat.data.avgPosition;
                 
+                // On déplace le modèle au centre de notre monde (0,0,0)
+                splat.position = center.multiply(new SPLAT.Vector3(-1, -1, -1));
+
+                // On recule la caméra pour voir l'ensemble
+                camera.position = new SPLAT.Vector3(0, 10, 50);
+                controls.target = new SPLAT.Vector3(0, 0, 0);
+                // -----------------------------
+
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
@@ -54,8 +64,8 @@
                 requestAnimationFrame(frame);
 
             } catch (error) {
-                console.error(error);
-                document.getElementById("status").innerText = "Erreur de chargement";
+                console.error("Erreur détaillée :", error);
+                document.getElementById("status").innerText = "Fichier non trouvé ou erreur.";
             }
 
             window.addEventListener("resize", () => {
