@@ -3,58 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seraincourt 3D</title>
-    <!-- Importation du module 3D -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <title>Seraincourt 3D - Gaussian Splat</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
-        model-viewer { width: 100%; height: 100%; background-color: #000; }
-        
-        /* Écran de chargement */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        canvas { width: 100%; height: 100%; display: block; }
         #loading-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: black; display: flex; flex-direction: column;
             justify-content: center; align-items: center; color: white; z-index: 10;
         }
-        .progress-bar { width: 200px; height: 6px; background: #333; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        #update-bar { width: 0%; height: 100%; background: #00ff00; transition: width 0.2s; }
+        .loader { border: 4px solid #333; border-top: 4px solid #00ff00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="loading-screen">
-        <div id="status-text">Chargement du village...</div>
-        <div class="progress-bar"><div id="update-bar"></div></div>
+        <div class="loader"></div>
+        <div id="status">Chargement du village (Splat 3D)...</div>
     </div>
 
-    <model-viewer 
-        id="viewer"
-        src="model.splat" 
-        alt="Vue 3D de Seraincourt"
-        camera-controls 
-        auto-rotate
-        rotation-speed="0.5"
-        shadow-intensity="1"
-        camera-orbit="0deg 75deg 105%">
-    </model-viewer>
+    <canvas id="canvas"></canvas>
 
-    <script>
-        const viewer = document.querySelector('#viewer');
-        const loadingScreen = document.querySelector('#loading-screen');
-        const updateBar = document.querySelector('#update-bar');
-        const statusText = document.querySelector('#status-text');
+    <script type="module">
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest";
 
-        // Mise à jour de la barre de progression
-        viewer.addEventListener('progress', (event) => {
-            const percent = Math.round(event.detail.totalProgress * 100);
-            updateBar.style.width = percent + '%';
-            statusText.innerText = `Téléchargement : ${percent}%`;
-            if (percent >= 100) statusText.innerText = "Préparation de l'affichage...";
-        });
+        const canvas = document.getElementById("canvas");
+        const progressText = document.getElementById("status");
+        const loadingScreen = document.getElementById("loading-screen");
 
-        // Masquer l'écran de chargement quand c'est prêt
-        viewer.addEventListener('load', () => {
-            loadingScreen.style.display = 'none';
+        async function init() {
+            // 1. Configuration du moteur
+            const renderer = new SPLAT.WebGLRenderer(canvas);
+            const scene = new SPLAT.Scene();
+            const camera = new SPLAT.Camera();
+            const controls = new SPLAT.OrbitControls(camera, canvas);
+
+            // 2. Chargement du modèle
+            try {
+                // On charge le fichier model.splat
+                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
+                    const percent = Math.round(progress * 100);
+                    progressText.innerText = `Téléchargement : ${percent}%`;
+                });
+
+                // 3. Masquer l'écran de chargement
+                loadingScreen.style.display = "none";
+
+                // Position de la caméra (tu pourras ajuster ces chiffres)
+                camera.position = new SPLAT.Vector3(0, 2, 5);
+                
+                // 4. Boucle de rendu
+                const frame = () => {
+                    controls.update();
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                };
+                requestAnimationFrame(frame);
+
+            } catch (error) {
+                console.error("Erreur de chargement :", error);
+                progressText.innerText = "Erreur : Le fichier .splat est introuvable ou corrompu.";
+            }
+        }
+
+        init();
+
+        // Gestion du redimensionnement de la fenêtre
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
     </script>
 </body>
