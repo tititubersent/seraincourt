@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #1a1a1a; overflow: hidden; font-family: sans-serif; color: white; }
+        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; color: white; }
         canvas { width: 100vw; height: 100vh; display: block; }
         .ui {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.8); padding: 15px 25px; border-radius: 30px;
-            z-index: 10; text-align: center; border: 1px solid #444;
+            z-index: 10; text-align: center; border: 1px solid #444; pointer-events: none;
         }
     </style>
 </head>
 <body>
 
     <div class="ui" id="status-ui">
-        <span id="label">Recherche du village...</span>
+        <span id="label">Chargement du village...</span>
     </div>
     
     <canvas id="canvas"></canvas>
@@ -34,24 +34,32 @@
             const camera = new SPLAT.Camera();
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
+            // On augmente la distance de vue de la caméra (pour ne rien rater)
+            camera.far = 10000;
             renderer.setSize(window.innerWidth, window.innerHeight);
 
             try {
-                // Chargement
-                const model = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
+                // Chargement du modèle
+                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
                     label.innerText = "Chargement : " + Math.round(p * 100) + "%";
                 });
 
-                label.innerText = "Village chargé ! Utilisez la molette pour reculer si c'est noir.";
+                label.innerText = "Village chargé ! Utilisez la molette pour dézoomer.";
 
-                // --- REGLAGES DE SECOURS ---
-                // On recule la caméra très loin pour être sûr de voir quelque chose
-                camera.position = new SPLAT.Vector3(0, 2, 10); 
+                // --- FORCER LE MODÈLE AU CENTRE ---
+                // On place la caméra assez loin pour voir le modèle en entier
+                camera.position = new SPLAT.Vector3(0, 5, 15);
                 
+                // On active une rotation automatique pour t'aider à repérer le modèle
                 const frame = () => {
-                    // On fait tourner la scène très lentement pour aider à repérer le modèle
-                    scene.rotation.y += 0.005; 
-                    
+                    // On fait tourner la CAMERA autour du centre (plus efficace)
+                    const time = Date.now() * 0.0005;
+                    if (label.innerText.includes("chargé")) {
+                         // Supprime les deux lignes suivantes si tu veux bloquer la rotation après test
+                         camera.position.x = Math.sin(time) * 10;
+                         camera.position.z = Math.cos(time) * 10;
+                    }
+
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
@@ -64,7 +72,8 @@
                 requestAnimationFrame(frame);
 
             } catch (error) {
-                label.innerText = "Erreur de rendu.";
+                label.innerText = "Erreur de chargement du fichier .splat";
+                console.error(error);
             }
         }
 
