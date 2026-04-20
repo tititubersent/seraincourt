@@ -2,19 +2,16 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Village de Seraincourt</title>
-    <!-- On utilise la version stable d'A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <!-- Le script "lecteur" original -->
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
   </head>
   <body style="margin: 0; background-color: #000;">
     <a-scene>
-      <!-- Le village : On ne touche à rien -->
-      <a-entity gaussian_splatting="src: model.splat;" position="0 1.5 -5"></a-entity>
+      <!-- On place le modèle au centre 0 0 0 -->
+      <a-entity gaussian_splatting="src: model.splat;" position="0 0 0" rotation="0 0 0"></a-entity>
 
-      <!-- La caméra : On la met juste devant -->
-      <a-entity camera look-controls wasd-controls position="0 1.5 0"></a-entity>
+      <!-- On met la caméra très loin (50 mètres en arrière et 20 mètres en haut) pour voir où est le village -->
+      <a-entity camera look-controls wasd-controls position="0 20 50"></a-entity>
     </a-scene>
   </body>
 </html>
