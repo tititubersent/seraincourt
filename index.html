@@ -3,37 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Village de Seraincourt 3D</title>
+    <title>Seraincourt 3D</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        luma-splat { display: block; width: 100vw; height: 100vh; }
+        body { margin: 0; background-color: #111; font-family: sans-serif; }
+        #viewer { width: 100vw; height: 100vh; display: block; }
+        .info { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.5); padding: 10px; pointer-events: none; }
     </style>
-
-    <!-- On explique au navigateur où trouver 'three' -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
-            "@lumaai/luma-web": "https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"
-        }
-    }
-    </script>
 </head>
 <body>
 
-    <script type="module">
-        import { LumaSplatsElement } from '@lumaai/luma-web';
-        // On enregistre le composant pour qu'il fonctionne
-        if (!customElements.get('luma-splat')) {
-            customElements.define('luma-splat', LumaSplatsElement);
-        }
-    </script>
+    <div class="info">Chargement du village... (Utilisez la souris pour bouger)</div>
 
-    <luma-splat 
+    <!-- On utilise un lecteur universel très stable -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <model-viewer 
+        id="viewer"
         src="model.splat" 
-        loading="eager"
-        background-color="#000000">
-    </luma-splat>
+        camera-controls 
+        touch-action="none"
+        autoplay
+        ar
+        shadow-intensity="1"
+        camera-orbit="0deg 75deg 10m"
+        field-of-view="30deg">
+    </model-viewer>
 
 </body>
 </html>
