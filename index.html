@@ -6,11 +6,11 @@
     <title>Village de Seraincourt 3D</title>
     <style>
         body { margin: 0; background-color: #000; overflow: hidden; font-family: sans-serif; color: white; }
-        #canvas-container { width: 100vw; height: 100vh; }
+        canvas { width: 100vw; height: 100vh; display: block; }
         .ui {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.8); padding: 15px 25px; border-radius: 30px;
-            z-index: 10; text-align: center; border: 1px solid #444;
+            z-index: 10; text-align: center; border: 1px solid #444; pointer-events: none;
         }
         #progress { color: #00ff00; font-weight: bold; }
     </style>
@@ -22,56 +22,57 @@
         <span id="progress"></span>
     </div>
     
-    <canvas id="canvas-container"></canvas>
+    <canvas id="canvas"></canvas>
 
     <script type="module">
-        // Importation du moteur de rendu spécialisé
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
 
-        const canvas = document.getElementById("canvas-container");
+        const canvas = document.getElementById("canvas");
         const progress = document.getElementById("progress");
         const label = document.getElementById("label");
         const ui = document.getElementById("status-ui");
 
         async function main() {
-            // 1. Configuration de la scène
+            // Configuration du moteur
             const renderer = new SPLAT.WebGLRenderer(canvas);
             const scene = new SPLAT.Scene();
             const camera = new SPLAT.Camera();
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
+            // Ajustement immédiat de la taille
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
             label.innerText = "Téléchargement du village : ";
 
-            // 2. Chargement du fichier .splat
             try {
+                // Chargement du fichier
                 await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
                     progress.innerText = Math.round(p * 100) + "%";
                 });
 
-                label.innerText = "Village chargé ! Utilisez la souris pour naviguer.";
+                label.innerText = "Village chargé ! Bougez la souris pour explorer.";
                 progress.innerText = "";
-                
-                // Disparition de l'aide après 5 secondes
-                setTimeout(() => { ui.style.opacity = "0"; ui.style.transition = "1s"; }, 5000);
 
-                // 3. Boucle d'affichage
+                // Position de la caméra par défaut (un peu de recul)
+                camera.position = new SPLAT.Vector3(0, 0, 5); 
+                
+                // Animation
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
                 };
 
-                // Ajustement de la taille si on redimensionne la fenêtre
                 window.addEventListener("resize", () => {
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
 
                 requestAnimationFrame(frame);
+                setTimeout(() => { ui.style.opacity = "0.5"; }, 5000);
 
             } catch (error) {
                 console.error(error);
-                label.innerText = "Erreur : Fichier model.splat introuvable ou corrompu.";
-                label.style.color = "red";
+                label.innerText = "Erreur d'affichage.";
             }
         }
 
