@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; color: white; }
         canvas { width: 100vw; height: 100vh; display: block; }
         #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px;
+            background: rgba(0,0,0,0.9); padding: 20px; border-radius: 15px;
             z-index: 100; text-align: center; border: 1px solid #3498db;
         }
     </style>
 </head>
 <body>
 
-    <div id="loader">Chargement du village... <br><span id="percent">0%</span></div>
+    <div id="loader">
+        <div style="font-size: 20px; margin-bottom: 10px;">Chargement du Village...</div>
+        <div id="percent" style="font-size: 30px; font-weight: bold; color: #3498db;">0%</div>
+    </div>
+    
     <canvas id="canvas"></canvas>
 
     <script type="module">
@@ -27,6 +31,7 @@
         const percent = document.getElementById("percent");
 
         async function main() {
+            // Initialisation
             const renderer = new SPLAT.WebGLRenderer(canvas);
             const scene = new SPLAT.Scene();
             const camera = new SPLAT.Camera();
@@ -35,45 +40,26 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
 
             try {
-                // Chargement du fichier
+                // Chargement du modèle
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
                     percent.innerText = Math.round(p * 100) + "%";
                 });
 
-                // Cacher le loader
+                // Une fois chargé, on cache le texte de chargement
                 loader.style.display = "none";
 
-                // --- CALCUL DU CENTRE AUTOMATIQUE ---
-                // On récupère la position moyenne de tous les points du village
+                // RECENTRAGE : On prend le centre moyen des points et on déplace le modèle
+                // pour qu'il soit pile devant la caméra.
                 const center = splat.data.avgPosition;
-                
-                // On déplace le village au centre du monde (0,0,0) pour ne plus être perdu
                 splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
-                
-                // On règle la caméra pour qu'elle regarde le centre
-                camera.position = new SPLAT.Vector3(0, 30, 100); // Vue de haut et d'un peu loin
-                controls.target = new SPLAT.Vector3(0, 0, 0);
-                controls.update();
 
-                // Boucle de rendu
+                // Placement de la caméra (un peu en hauteur et en recul)
+                camera.position = new SPLAT.Vector3(0, 20, 100);
+                controls.target = new SPLAT.Vector3(0, 0, 0);
+                camera.near = 0.1;
+                camera.far = 10000;
+
+                // Boucle d'animation
                 const frame = () => {
                     controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-
-                requestAnimationFrame(frame);
-
-                window.addEventListener("resize", () => {
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                });
-
-            } catch (error) {
-                loader.innerHTML = "Erreur : " + error.message;
-            }
-        }
-
-        main();
-    </script>
-</body>
-</html>
+                    renderer.render(scene,
