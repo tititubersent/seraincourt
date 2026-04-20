@@ -3,72 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Village de Seraincourt - 3D Splat</title>
+    <title>Village de Seraincourt 3D</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        canvas { width: 100%; height: 100%; display: block; }
-        #loader {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white; z-index: 10;
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+        /* Style du lecteur pour qu'il prenne tout l'écran */
+        luma-splat {
+            display: block;
+            width: 100vw;
+            height: 100vh;
         }
-        .spinner { border: 3px solid #333; border-top: 3px solid #00ff00; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <div id="status">Chargement de Seraincourt...</div>
-    </div>
+    <!-- On utilise le moteur de Luma AI, beaucoup plus tolérant -->
+    <script type="module" src="https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"></script>
 
-    <canvas id="canvas"></canvas>
+    <luma-splat 
+        src="model.splat" 
+        loading="eager"
+        background-color="#000000"
+        alpha-background="false">
+    </luma-splat>
 
-    <script type="module">
-        // Utilisation du moteur spécialisé gsplat.js
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest";
-
-        const canvas = document.getElementById("canvas");
-        const status = document.getElementById("status");
-        const loader = document.getElementById("loader");
-
-        async function main() {
-            const renderer = new SPLAT.WebGLRenderer(canvas);
-            const scene = new SPLAT.Scene();
-            const camera = new SPLAT.Camera();
-            const controls = new SPLAT.OrbitControls(camera, canvas);
-
-            try {
-                // Chargement du fichier model.splat
-                await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    status.innerText = `Chargement : ${Math.round(progress * 100)}%`;
-                });
-
-                loader.style.display = "none";
-                
-                // Positionnement de la caméra (ajustable selon le village)
-                camera.position = new SPLAT.Vector3(0, 2, 5);
-
-                const frame = () => {
-                    controls.update();
-                    renderer.render(scene, camera);
-                    requestAnimationFrame(frame);
-                };
-                requestAnimationFrame(frame);
-
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Erreur : Impossible de lire model.splat";
-            }
-        }
-
-        main();
-
-        window.addEventListener("resize", () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
 </body>
 </html>
