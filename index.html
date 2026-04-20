@@ -6,26 +6,34 @@
     <title>Village de Seraincourt 3D</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        /* Style du lecteur pour qu'il prenne tout l'écran */
-        luma-splat {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-        }
+        luma-splat { display: block; width: 100vw; height: 100vh; }
     </style>
+
+    <!-- On explique au navigateur où trouver 'three' -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "@lumaai/luma-web": "https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"
+        }
+    }
+    </script>
 </head>
 <body>
 
-    <!-- On utilise le moteur de Luma AI, beaucoup plus tolérant -->
-    <script type="module" src="https://unpkg.com/@lumaai/luma-web@0.2.0/dist/library/luma-web.module.js"></script>
+    <script type="module">
+        import { LumaSplatsElement } from '@lumaai/luma-web';
+        // On enregistre le composant pour qu'il fonctionne
+        if (!customElements.get('luma-splat')) {
+            customElements.define('luma-splat', LumaSplatsElement);
+        }
+    </script>
 
     <luma-splat 
         src="model.splat" 
         loading="eager"
-        background-color="#000000"
-        alpha-background="false">
+        background-color="#000000">
     </luma-splat>
 
 </body>
 </html>
- 
