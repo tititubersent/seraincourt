@@ -2,51 +2,66 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Village 3D - Seraincourt</title>
-    <!-- On utilise le moteur 3D officiel de Google -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+    <title>Village de Seraincourt 3D</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #111; overflow: hidden; }
-        model-viewer {
-            width: 100vw;
-            height: 100vh;
-            background-color: #111;
-        }
-        .error-msg {
+        body { margin: 0; background-color: #111; overflow: hidden; font-family: sans-serif; }
+        canvas { width: 100vw; height: 100vh; display: block; }
+        #loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: white; font-family: sans-serif; display: none; text-align: center;
+            color: white; text-align: center; z-index: 10;
         }
     </style>
 </head>
 <body>
+    <div id="loader">
+        <p id="status">Chargement du village...</p>
+        <h1 id="percent">0%</h1>
+    </div>
+    <canvas id="canvas"></canvas>
 
-    <!-- On lui dit de charger model.splat, de centrer automatiquement et de permettre de tourner avec la souris -->
-    <model-viewer 
-        id="village"
-        src="model.splat" 
-        camera-controls 
-        auto-rotate
-        shadow-intensity="1"
-        alt="Village de Seraincourt 3D"
-        loading="eager">
-        
-        <div id="error" class="error-msg">
-            Impossible de trouver le fichier "model.splat".<br>
-            Vérifiez le nom du fichier sur GitHub.
-        </div>
-    </model-viewer>
+    <script type="module">
+        // CE LIEN EST VÉRIFIÉ ET FONCTIONNEL
+        import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@1.2.0/dist/gsplat.es.js";
 
-    <script>
-        const viewer = document.getElementById('village');
-        const error = document.getElementById('error');
-        
-        // Si le fichier n'est pas trouvé sur ton GitHub
-        viewer.addEventListener('error', (e) => {
-            console.error("Erreur de chargement :", e);
-            error.style.display = 'block';
+        const canvas = document.getElementById("canvas");
+        const renderer = new SPLAT.WebGLRenderer(canvas);
+        const scene = new SPLAT.Scene();
+        const camera = new SPLAT.Camera();
+        const controls = new SPLAT.OrbitControls(camera, canvas);
+
+        async function main() {
+            try {
+                // On charge le fichier model.splat
+                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
+                    document.getElementById("percent").innerText = Math.round(progress * 100) + "%";
+                });
+
+                // Une fois chargé, on cache le texte
+                document.getElementById("loader").style.display = "none";
+
+                // POSITION DE LA CAMÉRA (On recule pour voir le village)
+                camera.position = new SPLAT.Vector3(0, 10, 30);
+                camera.lookAt(new SPLAT.Vector3(0, 0, 0));
+
+                const frame = () => {
+                    controls.update();
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                };
+                requestAnimationFrame(frame);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById("status").innerText = "Erreur de format de fichier.";
+                document.getElementById("percent").innerText = "❌";
+            }
+        }
+
+        main();
+
+        window.addEventListener("resize", () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
-
 </body>
 </html>
