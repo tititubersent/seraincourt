@@ -4,35 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
-    <!-- On utilise la version 3.4.0 qui gère très bien les Splats -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; background-color: #000; font-family: sans-serif; }
-        model-viewer {
-            width: 100vw;
-            height: 100vh;
-            --progress-bar-color: #00ff00;
-        }
+        body { margin: 0; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
         .instruction {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.6); color: white; padding: 10px 20px;
-            border-radius: 20px; pointer-events: none; z-index: 10;
+            background: rgba(0,0,0,0.7); color: white; padding: 12px 24px;
+            border-radius: 30px; pointer-events: none; z-index: 10; text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="instruction">Chargement du village (22 Mo)...</div>
+    <div class="instruction" id="status">Chargement du village (22 Mo)...</div>
+    <div id="canvas-container"></div>
 
-    <model-viewer 
-        src="model.splat" 
-        camera-controls 
-        touch-action="none" 
-        disable-zoom="false"
-        loading="eager"
-        alt="Vue 3D de Seraincourt">
-    </model-viewer>
+    <!-- On utilise un lecteur spécialisé pour les fichiers .splat -->
+    <script type="module">
+        import * as Splat from 'https://cdn.jsdelivr.net/npm/@g-splat/dots@latest/dist/index.js';
 
+        const container = document.getElementById('canvas-container');
+        const status = document.getElementById('status');
+
+        async function init() {
+            // Création de la scène 3D
+            const scene = new Splat.Scene();
+            const camera = new Splat.Camera();
+            const renderer = new Splat.WebGLRenderer(container);
+            const controls = new Splat.OrbitControls(camera, container);
+
+            // Chargement du fichier
+            try {
+                await Splat.Loader.LoadAsync("model.splat", scene, (progress) => {
+                    status.innerText = `Chargement : ${Math.round(progress * 100)}%`;
+                });
+                
+                status.innerText = "Utilisez la souris pour naviguer";
+                setTimeout(() => { status.style.display = 'none'; }, 5000);
+
+                // Animation
+                const frame = () => {
+                    controls.update();
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                };
+                requestAnimationFrame(frame);
+
+            } catch (error) {
+                console.error(error);
+                status.innerText = "Erreur de chargement. Vérifiez le fichier model.splat";
+            }
+        }
+
+        init();
+    </script>
 </body>
 </html>
- 
