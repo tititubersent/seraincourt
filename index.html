@@ -17,7 +17,7 @@
 <body>
 
     <div class="ui">
-        <span id="label">Initialisation du radar...</span>
+        <span id="label">Analyse du village...</span>
     </div>
     
     <canvas id="canvas"></canvas>
@@ -35,31 +35,28 @@
             const controls = new SPLAT.OrbitControls(camera, canvas);
 
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.backgroundColor = new SPLAT.Color32(26, 26, 46, 255); // Fond bleu nuit
+            renderer.backgroundColor = new SPLAT.Color32(26, 26, 46, 255);
 
             try {
                 const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
-                    label.innerText = "Chargement du village : " + Math.round(p * 100) + "%";
+                    label.innerText = "Chargement : " + Math.round(p * 100) + "%";
                 });
 
-                label.innerText = "Village trouvé ! Tentative de centrage...";
+                label.innerText = "Village chargé ! Ajustement automatique...";
 
-                // --- LE RADAR : On cherche le centre réel du modèle ---
+                // --- PROCEDURE DE SAUVETAGE ---
+                // 1. On attend que les données soient prêtes
                 setTimeout(() => {
-                    // On demande au moteur de calculer la position moyenne des points
-                    const center = splat.data.avgPosition; 
+                    // 2. On force le recentrage du modèle au point 0,0,0
+                    const center = splat.data.avgPosition;
+                    splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
                     
-                    if (center) {
-                        // On téléporte la caméra face au modèle
-                        camera.position = new SPLAT.Vector3(center.x, center.y, center.z + 10);
-                        controls.target = new SPLAT.Vector3(center.x, center.y, center.z);
-                        label.innerText = "Village centré ! Explorez avec la souris.";
-                    } else {
-                        // Si le calcul auto échoue, on recule très loin
-                        camera.position = new SPLAT.Vector3(0, 10, 50);
-                        label.innerText = "Village chargé. Reculez (molette) pour le voir.";
-                    }
-                }, 500);
+                    // 3. On place la caméra à une distance raisonnable
+                    camera.position = new SPLAT.Vector3(0, 5, 20);
+                    controls.target = new SPLAT.Vector3(0, 0, 0);
+                    
+                    label.innerText = "Village centré ! Utilisez la souris pour naviguer.";
+                }, 1000);
 
                 const frame = () => {
                     controls.update();
@@ -74,8 +71,7 @@
                 requestAnimationFrame(frame);
 
             } catch (error) {
-                label.innerText = "Erreur de lecture du fichier.";
-                console.error(error);
+                label.innerText = "Erreur fatale : " + error.message;
             }
         }
 
