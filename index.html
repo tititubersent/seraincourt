@@ -2,55 +2,63 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Village de Seraincourt 3D</title>
+    <title>Seraincourt 3D - FIX</title>
     <style>
-        body { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; }
-        canvas { width: 100%; height: 100%; display: block; }
-        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-family: sans-serif; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        #canvas { width: 100vw; height: 100vh; }
+        #info { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid #444; border-radius: 5px; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div id="loading">Chargement du village...</div>
+    <div id="info">
+        <b>Village de Seraincourt</b><br>
+        <span id="status">Initialisation...</span>
+    </div>
+
     <canvas id="canvas"></canvas>
 
+    <!-- On utilise Skypack : ça fusionne tout en UN SEUL fichier pour éviter ton erreur 404 -->
     <script type="module">
-        import * as SPLAT from "https://cdn.jsdelivr.net/npm/@g-splat/gsplat@1.1.0/dist/index.js";
+        import * as SPLAT from "https://cdn.skypack.dev/gsplat@1.1.0";
 
         const canvas = document.getElementById("canvas");
-        const renderer = new SPLAT.WebGLRenderer(canvas);
-        const scene = new SPLAT.Scene();
-        const camera = new SPLAT.Camera();
-        const controls = new SPLAT.OrbitControls(camera, canvas);
+        const status = document.getElementById("status");
 
-        async function main() {
+        async function start() {
             try {
-                // Chargement du fichier
+                const renderer = new SPLAT.WebGLRenderer(canvas);
+                const scene = new SPLAT.Scene();
+                const camera = new SPLAT.Camera();
+                const controls = new SPLAT.OrbitControls(camera, canvas);
+
+                status.innerText = "Téléchargement du fichier .splat...";
+
+                // Chargement du modèle
                 await SPLAT.Loader.LoadAsync("model.splat", scene, (progress) => {
-                    document.getElementById("loading").innerText = "Chargement : " + Math.round(progress * 100) + "%";
+                    status.innerText = "Chargement : " + Math.round(progress * 100) + "%";
                 });
 
-                document.getElementById("loading").style.display = "none";
+                status.innerText = "Chargé ! Si c'est noir, bougez la souris/doigt pour chercher le modèle.";
 
-                // Animation
+                // POSITION DE LA CAMÉRA (Le secret de la visibilité)
+                // On place la caméra un peu loin pour être sûr de voir quelque chose
+                camera.position.set(0, 5, 15);
+                
                 const frame = () => {
                     controls.update();
                     renderer.render(scene, camera);
                     requestAnimationFrame(frame);
                 };
-
-                // On cadre la vue sur le village
-                camera.position.set(0, 10, 20); 
-                
                 frame();
-            } catch (error) {
-                console.error(error);
-                document.getElementById("loading").innerText = "Erreur de lecture du fichier .splat";
+
+            } catch (e) {
+                status.innerText = "ERREUR : Le fichier model.splat est introuvable ou corrompu.";
+                console.error(e);
             }
         }
 
-        main();
+        start();
 
         window.addEventListener("resize", () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
