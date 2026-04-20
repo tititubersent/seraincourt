@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village de Seraincourt 3D</title>
     <style>
-        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; color: white; }
-        canvas { width: 100vw; height: 100vh; display: block; }
-        #loader {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); padding: 20px; border-radius: 15px;
-            z-index: 100; text-align: center; border: 1px solid #3498db;
+        body { margin: 0; background-color: #0b0e14; overflow: hidden; font-family: sans-serif; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #overlay {
+            position: relative; z-index: 10; background: rgba(0,0,0,0.85);
+            padding: 30px; border-radius: 15px; border: 2px solid #3498db;
+            text-align: center; max-width: 80%;
         }
+        .error { border-color: #e74c3c !important; color: #e74c3c; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div style="font-size: 20px; margin-bottom: 10px;">Chargement du Village...</div>
-        <div id="percent" style="font-size: 30px; font-weight: bold; color: #3498db;">0%</div>
+    <div id="overlay">
+        <div id="status" style="font-size: 1.2em; margin-bottom: 10px;">Vérification du fichier...</div>
+        <div id="percent" style="font-size: 2.5em; font-weight: bold; color: #3498db;">0%</div>
+        <div id="debug" style="font-size: 0.8em; margin-top: 15px; color: #888; font-family: monospace;"></div>
     </div>
     
     <canvas id="canvas"></canvas>
@@ -26,40 +28,68 @@
     <script type="module">
         import * as SPLAT from "https://cdn.jsdelivr.net/npm/gsplat@latest/dist/index.es.min.js";
 
-        const canvas = document.getElementById("canvas");
-        const loader = document.getElementById("loader");
+        const status = document.getElementById("status");
         const percent = document.getElementById("percent");
+        const debug = document.getElementById("debug");
+        const overlay = document.getElementById("overlay");
 
         async function main() {
-            // Initialisation
+            const canvas = document.getElementById("canvas");
             const renderer = new SPLAT.WebGLRenderer(canvas);
             const scene = new SPLAT.Scene();
             const camera = new SPLAT.Camera();
             const controls = new SPLAT.OrbitControls(camera, canvas);
-
             renderer.setSize(window.innerWidth, window.innerHeight);
 
+            const fileName = "model.splat";
+
             try {
-                // Chargement du modèle
-                const splat = await SPLAT.Loader.LoadAsync("model.splat", scene, (p) => {
+                debug.innerText = "Test d'accès à " + fileName + "...";
+                
+                // 1. On vérifie d'abord si le fichier répond avant de lancer le moteur 3D
+                const response = await fetch(fileName, { method: 'HEAD' });
+                
+                if (!response.ok) {
+                    throw new Error("Le serveur répond avec une erreur " + response.status + " (Fichier introuvable)");
+                }
+
+                debug.innerText = "Fichier trouvé. Début du téléchargement...";
+                status.innerText = "Téléchargement du Village...";
+
+                // 2. Chargement réel
+                const splat = await SPLAT.Loader.LoadAsync(fileName, scene, (p) => {
                     percent.innerText = Math.round(p * 100) + "%";
                 });
 
-                // Une fois chargé, on cache le texte de chargement
-                loader.style.display = "none";
+                // 3. Succès
+                overlay.style.display = "none";
 
-                // RECENTRAGE : On prend le centre moyen des points et on déplace le modèle
-                // pour qu'il soit pile devant la caméra.
                 const center = splat.data.avgPosition;
                 splat.position = new SPLAT.Vector3(-center.x, -center.y, -center.z);
-
-                // Placement de la caméra (un peu en hauteur et en recul)
                 camera.position = new SPLAT.Vector3(0, 20, 100);
                 controls.target = new SPLAT.Vector3(0, 0, 0);
-                camera.near = 0.1;
-                camera.far = 10000;
 
-                // Boucle d'animation
                 const frame = () => {
                     controls.update();
-                    renderer.render(scene,
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(frame);
+                };
+                requestAnimationFrame(frame);
+
+            } catch (error) {
+                console.error(error);
+                overlay.classList.add("error");
+                status.innerText = "ÉCHEC DU CHARGEMENT";
+                percent.innerText = "Erreur";
+                debug.innerText = error.message;
+            }
+
+            window.addEventListener("resize", () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        main();
+    </script>
+</body>
+</html>
