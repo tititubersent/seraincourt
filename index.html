@@ -2,16 +2,33 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <title>Seraincourt 3D</title>
+    
+    <!-- 1. Le moteur 3D -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    
+    <!-- 2. Le lecteur de modèle Splat -->
     <script src="https://quadjr.github.io/aframe-gaussian-splatting/index.js"></script>
+    
+    <!-- 3. LE CORRECTIF : Le script pour activer le ZOOM à la molette et centrer la vue -->
+    <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
   </head>
+  
   <body style="margin: 0; background-color: #000;">
     <a-scene>
-      <!-- On place le modèle au centre 0 0 0 -->
-      <a-entity gaussian_splatting="src: model.splat;" position="0 0 0" rotation="0 0 0"></a-entity>
+      
+      <!-- Ton modèle 3D posé au centre -->
+      <a-entity gaussian_splatting="src: model.splat;" position="0 0 0"></a-entity>
 
-      <!-- On met la caméra très loin (50 mètres en arrière et 20 mètres en haut) pour voir où est le village -->
-      <a-entity camera look-controls wasd-controls position="0 20 50"></a-entity>
+      <!-- La caméra avec "Orbit Controls" : 
+           - target="0 0 0" : force la caméra à regarder le village (le centre).
+           - initialPosition="0 15 40" : place la caméra en hauteur et en recul au démarrage.
+           - minDistance / maxDistance : limites du zoom pour ne pas se perdre. -->
+      <a-entity camera 
+                look-controls="enabled: false"
+                orbit-controls="target: 0 0 0; minDistance: 2; maxDistance: 150; initialPosition: 0 15 40;">
+      </a-entity>
+
     </a-scene>
   </body>
 </html>
