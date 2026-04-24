@@ -12,10 +12,9 @@
   <body style="margin: 0; background-color: #000;">
     <a-scene>
       
-      <a-entity gaussian_splatting="src: model.splat;" position="0 0 0"></a-entity>
+      <!-- J'ai ajouté scale="10 10 10" pour rendre le modèle 10 fois plus grand ! -->
+      <a-entity gaussian_splatting="src: model.splat;" position="0 0 0" scale="10 10 10"></a-entity>
 
-      <!-- J'ai passé minDistance à 0.1 pour te laisser zoomer à fond 
-           et j'ai rapproché un peu la position de départ (initialPosition: 0 5 15) -->
       <a-entity camera 
                 look-controls="enabled: false"
                 orbit-controls="target: 0 0 0; minDistance: 0.1; maxDistance: 150; initialPosition: 0 5 15;">
